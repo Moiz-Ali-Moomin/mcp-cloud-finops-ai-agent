@@ -1,0 +1,9 @@
+﻿{
+    "name": "opsyield-mcp",
+    "version": "1.3.0",
+    "description": "Production-grade multi-cloud FinOps MCP backend",
+    "entrypoint": "opsyield.api.entry:mcp",
+    "license": "MIT",
+    "runtime": "python",
+    "docker": true
+}

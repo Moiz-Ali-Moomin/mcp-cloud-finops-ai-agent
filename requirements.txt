@@ -1,0 +1,28 @@
+# Core Web / API
+fastapi
+uvicorn[standard]
+
+# Cloud Providers — AWS
+boto3
+
+# Cloud Providers — GCP
+google-cloud-bigquery
+google-cloud-compute
+google-auth
+google-api-core
+
+# Cloud Providers — Azure
+azure-identity
+azure-mgmt-resource
+azure-mgmt-compute
+azure-mgmt-costmanagement
+
+# Utilities
+python-dotenv
+pydantic
+httpx
+tenacity
+rich
+
+# MCP
+mcp

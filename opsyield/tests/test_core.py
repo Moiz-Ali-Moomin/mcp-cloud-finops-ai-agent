@@ -383,17 +383,13 @@ class TestSnapshotManager:
 
 
 # ─────────────────────────────────────────────────────────────
-# Interfaces
+# Interfaces (OptimizationStrategy — moved to models.py)
 # ─────────────────────────────────────────────────────────────
 
-from opsyield.core.interfaces import BaseProvider, OptimizationStrategy
+from opsyield.core.models import OptimizationStrategy
 
 
 class TestInterfaces:
-    def test_base_provider_is_abstract(self):
-        with pytest.raises(TypeError):
-            BaseProvider()
-
     def test_optimization_strategy_is_abstract(self):
         with pytest.raises(TypeError):
             OptimizationStrategy()

@@ -1,6 +1,5 @@
 ﻿from typing import List, Dict
-from ..core.models import NormalizedCost
-from ..core.interfaces import OptimizationStrategy
+from ..core.models import NormalizedCost, OptimizationStrategy
 
 class IdleScorer(OptimizationStrategy):
     """

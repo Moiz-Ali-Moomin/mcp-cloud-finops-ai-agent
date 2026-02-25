@@ -1,15 +1,13 @@
 ﻿"""
-GCP Provider â€” Production-grade cloud status + cost analysis.
+GCP Provider — Production-grade cloud status + cost analysis.
 
 Status: subprocess.run(shell=True) for Windows .cmd compatibility.
 Costs:  google-cloud-bigquery billing export with asyncio.to_thread().
 Authentication is determined by CLI exit code, NOT by project list.
 """
 import asyncio
-import json
 import os
 import shutil
-import subprocess
 import time
 from datetime import datetime, timedelta
 from decimal import Decimal
@@ -17,11 +15,12 @@ from typing import List, Dict, Any, Optional
 
 from ..core.models import NormalizedCost, Resource
 from ..core.logging import get_logger
+from .cli_utils import run_cli, parse_json
 
 logger = get_logger(__name__)
 
 
-# â”€â”€â”€ Lazy BigQuery imports (optional dependency) â”€â”€â”€
+# ——— Lazy BigQuery imports (optional dependency) ———
 try:
     from google.cloud import bigquery
     from google.api_core import exceptions as gcp_exceptions
@@ -30,55 +29,6 @@ except ImportError:
     HAS_BIGQUERY = False
     bigquery = None
     gcp_exceptions = None
-
-
-def _clean_env() -> dict:
-    """Strip PAGER (breaks CLIs on Windows) and return env copy."""
-    env = os.environ.copy()
-    env.pop("PAGER", None)
-    return env
-
-
-def _run(cmd: str, timeout: int = 15) -> dict:
-    """
-    Run a CLI command synchronously with full debug capture.
-
-    Returns {ok, stdout, stderr, returncode} for every call â€”
-    never raises, never swallows output.
-    """
-    try:
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            shell=True,             # Required: gcloud/aws/az are .cmd on Windows
-            timeout=timeout,
-            env=_clean_env(),
-        )
-        logger.info(
-            f"[GCP] cmd={cmd!r} rc={result.returncode} "
-            f"stdout={len(result.stdout)}B stderr={len(result.stderr)}B"
-        )
-        return {
-            "ok": result.returncode == 0,
-            "stdout": result.stdout.strip(),
-            "stderr": result.stderr.strip(),
-            "returncode": result.returncode,
-        }
-    except subprocess.TimeoutExpired:
-        logger.warning(f"[GCP] Timeout: {cmd}")
-        return {"ok": False, "stdout": "", "stderr": "Command timed out", "returncode": -1}
-    except Exception as e:
-        logger.error(f"[GCP] Exception: {e}")
-        return {"ok": False, "stdout": "", "stderr": str(e), "returncode": -1}
-
-
-def _parse_json(raw: str):
-    """Safely parse JSON, return None on failure."""
-    try:
-        return json.loads(raw) if raw else None
-    except json.JSONDecodeError:
-        return None
 
 
 class GCPProvider:
@@ -135,7 +85,7 @@ class GCPProvider:
 
         # â”€â”€ 2. Primary auth check â”€â”€
         auth_cmd = "gcloud auth list --filter=status:ACTIVE --format=value(account)"
-        auth = _run(auth_cmd)
+        auth = run_cli(auth_cmd, tag="GCP")
         status["debug"]["auth_list"] = {
             "stdout": auth["stdout"][:200],
             "stderr": auth["stderr"][:200],
@@ -148,7 +98,7 @@ class GCPProvider:
         else:
             # â”€â”€ 3. Fallback: Application Default Credentials â”€â”€
             adc_cmd = "gcloud auth application-default print-access-token"
-            adc = _run(adc_cmd, timeout=10)
+            adc = run_cli(adc_cmd, timeout=10, tag="GCP")
             status["debug"]["adc"] = {
                 "returncode": adc["returncode"],
                 "has_token": bool(adc["stdout"].strip()),
@@ -161,12 +111,12 @@ class GCPProvider:
 
         # â”€â”€ 4. Project list (informational, does NOT affect auth) â”€â”€
         if status["authenticated"]:
-            proj = _run("gcloud projects list --format=json")
+            proj = run_cli("gcloud projects list --format=json", tag="GCP")
             status["debug"]["projects_list"] = {
                 "returncode": proj["returncode"],
                 "stdout_len": len(proj["stdout"]),
             }
-            parsed = _parse_json(proj["stdout"])
+            parsed = parse_json(proj["stdout"])
             if isinstance(parsed, list):
                 status["projects"] = [
                     {"id": p.get("projectId", ""), "name": p.get("name", "")}

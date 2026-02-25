@@ -1,13 +1,13 @@
-﻿class CostAnalyzer:
+﻿from typing import List
 
-    def __init__(self, provider):
-        self.provider = provider
+from ..core.models import Resource
 
-    def calculate(self, resources):
 
-        total = 0
+class CostAnalyzer:
+    """Calculate total cost from a list of Resource objects."""
 
+    def calculate(self, resources: List[Resource]) -> float:
+        total = 0.0
         for r in resources:
-            total += self.provider.price(r)
-
+            total += r.cost_30d or 0.0
         return total

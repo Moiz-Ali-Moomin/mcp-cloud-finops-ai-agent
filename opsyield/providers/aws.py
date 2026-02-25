@@ -1,13 +1,11 @@
 ﻿"""
-AWS Provider â€” Production-grade cloud status detection.
+AWS Provider — Production-grade cloud status detection.
 
 Uses subprocess.run(shell=True) for Windows .cmd compatibility.
 Authentication is determined by CLI exit code of `aws sts get-caller-identity`.
 """
-import json
 import os
 import shutil
-import subprocess
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
 
@@ -20,56 +18,9 @@ except ImportError:
 
 from ..core.models import NormalizedCost, Resource
 from ..core.logging import get_logger
+from .cli_utils import run_cli, parse_json
 
 logger = get_logger(__name__)
-
-
-def _clean_env() -> dict:
-    """Strip PAGER (breaks CLIs on Windows) and return env copy."""
-    env = os.environ.copy()
-    env.pop("PAGER", None)
-    return env
-
-
-def _run(cmd: str, timeout: int = 15) -> dict:
-    """
-    Run a CLI command synchronously with full debug capture.
-
-    Returns {ok, stdout, stderr, returncode} â€” never raises.
-    """
-    try:
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            shell=True,
-            timeout=timeout,
-            env=_clean_env(),
-        )
-        logger.info(
-            f"[AWS] cmd={cmd!r} rc={result.returncode} "
-            f"stdout={len(result.stdout)}B stderr={len(result.stderr)}B"
-        )
-        return {
-            "ok": result.returncode == 0,
-            "stdout": result.stdout.strip(),
-            "stderr": result.stderr.strip(),
-            "returncode": result.returncode,
-        }
-    except subprocess.TimeoutExpired:
-        logger.warning(f"[AWS] Timeout: {cmd}")
-        return {"ok": False, "stdout": "", "stderr": "Command timed out", "returncode": -1}
-    except Exception as e:
-        logger.error(f"[AWS] Exception: {e}")
-        return {"ok": False, "stdout": "", "stderr": str(e), "returncode": -1}
-
-
-def _parse_json(raw: str):
-    """Safely parse JSON, return None on failure."""
-    try:
-        return json.loads(raw) if raw else None
-    except json.JSONDecodeError:
-        return None
 
 
 class AWSProvider:
@@ -106,7 +57,7 @@ class AWSProvider:
 
         # â”€â”€ 2. Authentication check via STS â”€â”€
         sts_cmd = "aws sts get-caller-identity --output json"
-        sts = _run(sts_cmd)
+        sts = run_cli(sts_cmd, tag="AWS")
         status["debug"]["sts"] = {
             "stdout": sts["stdout"][:300],
             "stderr": sts["stderr"][:300],
@@ -116,7 +67,7 @@ class AWSProvider:
         if sts["ok"]:
             # CLI exit code 0 â†’ authenticated
             status["authenticated"] = True
-            parsed = _parse_json(sts["stdout"])
+            parsed = parse_json(sts["stdout"])
             if isinstance(parsed, dict):
                 status["account"] = parsed.get("Account")
                 status["debug"]["arn"] = parsed.get("Arn", "")
@@ -136,12 +87,6 @@ class AWSProvider:
         """Async wrapper â€” runs blocking subprocess in a thread."""
         import asyncio
         return await asyncio.to_thread(self.get_status_sync)
-
-    async def get_costs(self, days: int = 30) -> List[NormalizedCost]:
-        if not HAS_BOTO3:
-            return []
-        import asyncio
-        return await asyncio.to_thread(self._sync_get_costs, days)
 
     async def get_costs(self, days: int = 30) -> List[NormalizedCost]:
         from ..billing.aws import AWSBillingProvider

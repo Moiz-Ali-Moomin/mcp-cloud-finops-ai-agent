@@ -130,12 +130,14 @@ class Orchestrator:
         Run analysis across multiple providers and delegate merging
         to AggregationEngine.
         """
+        from ..utils.helpers import gather_with_limit
+
         with TimedOperation(logger, "aggregate_analysis", provider=",".join(providers)):
-            tasks = [
+            coros = [
                 self.analyze(p, days=days, subscription_id=subscription_id)
                 for p in providers
             ]
-            raw_results = await asyncio.gather(*tasks, return_exceptions=True)
+            raw_results = await gather_with_limit(coros, limit=5)
 
             # Filter out failures
             valid_results = []

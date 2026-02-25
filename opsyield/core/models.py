@@ -1,4 +1,5 @@
-﻿from dataclasses import dataclass, field
+﻿from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Dict, Optional, Any, List
 
@@ -90,3 +91,16 @@ class AnalysisResult:
     high_cost_resources: List[Dict[str, Any]] = field(default_factory=list)
     idle_resources: List[Dict[str, Any]] = field(default_factory=list)
     waste_findings: List[Dict[str, Any]] = field(default_factory=list)
+
+
+class OptimizationStrategy(ABC):
+    """
+    Interface for optimization strategies.
+    """
+
+    @abstractmethod
+    def analyze(self, cost_item: NormalizedCost) -> Optional[dict]:
+        """
+        Analyze a NormalizedCost item and return optimization suggestions if any.
+        """
+        pass

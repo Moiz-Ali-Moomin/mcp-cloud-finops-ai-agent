@@ -81,7 +81,7 @@ class AzureBillingProvider(BillingProvider):
                     cost=float(amount),
                     currency=currency,
                     timestamp=ts,
-                    subscription_id=sub_id
+                    subscription_id=self.subscription_id
                 ))
 
         except ImportError:

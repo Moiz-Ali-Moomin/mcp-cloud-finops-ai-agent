@@ -35,7 +35,7 @@ dependencies = [
 ]
 
 [project.scripts]
-opsyield-mcp = "opsyield.api.entry:main"
+opsyield-mcp = "opsyield.api.main:main"
 
 [tool.setuptools.packages.find]
 include = ["opsyield*"]

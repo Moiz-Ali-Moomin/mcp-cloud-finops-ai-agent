@@ -1,68 +1,19 @@
 ﻿"""
-Azure Provider â€” Production-grade cloud status detection.
+Azure Provider — Production-grade cloud status detection.
 
 Uses subprocess.run(shell=True) for Windows .cmd compatibility.
 Authentication is determined by CLI exit code of `az account show`.
 """
-import json
 import os
 import shutil
-import subprocess
 from typing import List, Dict, Any
 from datetime import datetime, timedelta
 
 from ..core.models import NormalizedCost, Resource
 from ..core.logging import get_logger
+from .cli_utils import run_cli, parse_json
 
 logger = get_logger(__name__)
-
-
-def _clean_env() -> dict:
-    """Strip PAGER (breaks CLIs on Windows) and return env copy."""
-    env = os.environ.copy()
-    env.pop("PAGER", None)
-    return env
-
-
-def _run(cmd: str, timeout: int = 15) -> dict:
-    """
-    Run a CLI command synchronously with full debug capture.
-
-    Returns {ok, stdout, stderr, returncode} â€” never raises.
-    """
-    try:
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            shell=True,
-            timeout=timeout,
-            env=_clean_env(),
-        )
-        logger.info(
-            f"[AZ] cmd={cmd!r} rc={result.returncode} "
-            f"stdout={len(result.stdout)}B stderr={len(result.stderr)}B"
-        )
-        return {
-            "ok": result.returncode == 0,
-            "stdout": result.stdout.strip(),
-            "stderr": result.stderr.strip(),
-            "returncode": result.returncode,
-        }
-    except subprocess.TimeoutExpired:
-        logger.warning(f"[AZ] Timeout: {cmd}")
-        return {"ok": False, "stdout": "", "stderr": "Command timed out", "returncode": -1}
-    except Exception as e:
-        logger.error(f"[AZ] Exception: {e}")
-        return {"ok": False, "stdout": "", "stderr": str(e), "returncode": -1}
-
-
-def _parse_json(raw: str):
-    """Safely parse JSON, return None on failure."""
-    try:
-        return json.loads(raw) if raw else None
-    except json.JSONDecodeError:
-        return None
 
 
 class AzureProvider:
@@ -98,7 +49,7 @@ class AzureProvider:
 
         # â”€â”€ 2. Authentication check via az account show â”€â”€
         show_cmd = "az account show --output json"
-        show = _run(show_cmd)
+        show = run_cli(show_cmd, tag="AZ")
         status["debug"]["account_show"] = {
             "stdout": show["stdout"][:400],
             "stderr": show["stderr"][:300],
@@ -108,7 +59,7 @@ class AzureProvider:
         if show["ok"]:
             # CLI exit code 0 â†’ authenticated
             status["authenticated"] = True
-            parsed = _parse_json(show["stdout"])
+            parsed = parse_json(show["stdout"])
             if isinstance(parsed, dict):
                 sub_id = parsed.get("id", "")
                 sub_name = parsed.get("name", "")
@@ -124,14 +75,14 @@ class AzureProvider:
         else:
             # Fallback: try az account list
             list_cmd = "az account list --output json"
-            acct_list = _run(list_cmd)
+            acct_list = run_cli(list_cmd, tag="AZ")
             status["debug"]["account_list"] = {
                 "returncode": acct_list["returncode"],
                 "stdout_len": len(acct_list["stdout"]),
             }
 
             if acct_list["ok"]:
-                parsed_list = _parse_json(acct_list["stdout"])
+                parsed_list = parse_json(acct_list["stdout"])
                 if isinstance(parsed_list, list) and len(parsed_list) > 0:
                     status["authenticated"] = True
                     status["subscriptions"] = [

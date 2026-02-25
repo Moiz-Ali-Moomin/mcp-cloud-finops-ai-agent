@@ -1,26 +1,25 @@
-"""
-OpsYield MCP STDIO Server
-Transport: STDIO
-"""
-
+import json
 import os
 import sys
+from dataclasses import asdict
 from pathlib import Path
 
-# 🔧 Ensure the project root is on sys.path so 'opsyield' package is discoverable
+# Ensure the project root is on sys.path so 'opsyield' package is discoverable
 # Required when Claude Desktop (or other MCP clients) run this script directly
 _PROJECT_ROOT = str(Path(__file__).resolve().parent.parent)
 if _PROJECT_ROOT not in sys.path:
     sys.path.insert(0, _PROJECT_ROOT)
 
-# 🔒 Force ALL logs to stderr (never stdout) — critical for MCP protocol
+# Force ALL logs to stderr (never stdout) — critical for MCP protocol
 from opsyield.core.logging import configure_logging
 configure_logging(level="ERROR", stream=sys.stderr)
 
 from mcp.server.fastmcp import FastMCP
 from opsyield.core.orchestrator import Orchestrator
+from opsyield.api.adapters.analysis_adapter import adapt_analysis_result
 
 mcp = FastMCP("OpsYieldFinOps")
+_orchestrator = Orchestrator()
 
 
 @mcp.tool()
@@ -35,19 +34,16 @@ async def run_finops_intelligence(
     Falls back to GOOGLE_CLOUD_PROJECT if project_id not explicitly provided.
     """
 
-    orchestrator = Orchestrator()
-
-    # 🔥 Explicit environment fallback
     effective_project_id = project_id.strip() or os.getenv("GOOGLE_CLOUD_PROJECT")
 
-    result = await orchestrator.analyze(
+    result = await _orchestrator.analyze(
         provider_name=provider,
         days=days,
         project_id=effective_project_id,
         subscription_id=subscription_id.strip() or None,
     )
 
-    return str(result)
+    return json.dumps(adapt_analysis_result(result), default=str)
 
 
 @mcp.tool()
@@ -62,15 +58,13 @@ async def aggregate_finops(
 
     provider_list = [p.strip() for p in providers.split(",") if p.strip()]
 
-    orchestrator = Orchestrator()
-
-    result = await orchestrator.aggregate_analysis(
+    result = await _orchestrator.aggregate_analysis(
         providers=provider_list,
         days=days,
         subscription_id=subscription_id.strip() or None,
     )
 
-    return str(result)
+    return json.dumps(adapt_analysis_result(result), default=str)
 
 
 if __name__ == "__main__":

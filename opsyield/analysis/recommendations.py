@@ -1,6 +1,11 @@
-﻿class RecommendationEngine:
+﻿from typing import List, Optional
 
-    def build(self, resource, idle_score, suggestion, savings):
+from ..core.models import Resource
+
+
+class RecommendationEngine:
+
+    def build(self, resource: Resource, idle_score: int, suggestion: Optional[str], savings: float) -> List[str]:
 
         recommendations = []
 

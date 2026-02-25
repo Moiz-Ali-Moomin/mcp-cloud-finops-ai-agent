@@ -1,11 +1,12 @@
 ﻿"""
-AWS Provider — Production-grade cloud status detection.
+AWS Provider -- Production-grade cloud status detection.
 
 Uses subprocess.run(shell=True) for Windows .cmd compatibility.
 Authentication is determined by CLI exit code of `aws sts get-caller-identity`.
 """
 import os
 import shutil
+import asyncio
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
 
@@ -30,13 +31,13 @@ class AWSProvider:
 
     def get_status_sync(self) -> Dict[str, Any]:
         """
-        Synchronous status check â€” called via asyncio.to_thread().
+        Synchronous status check -- called via asyncio.to_thread().
 
         Authentication logic:
-          1. shutil.which("aws") â†’ installed
+          1. shutil.which("aws") -> installed
           2. aws sts get-caller-identity --output json
-             â†’ exit code 0 â†’ authenticated
-             â†’ Parse Account field from JSON stdout
+             -> exit code 0 -> authenticated
+             -> Parse Account field from JSON stdout
         """
         status: Dict[str, Any] = {
             "installed": False,
@@ -46,7 +47,7 @@ class AWSProvider:
             "debug": {},
         }
 
-        # â”€â”€ 1. Installation check â”€â”€
+        # -- 1. Installation check --
         aws_path = shutil.which("aws")
         if not aws_path:
             status["error"] = "AWS CLI not found on PATH"
@@ -55,7 +56,7 @@ class AWSProvider:
         status["installed"] = True
         status["debug"]["which"] = aws_path
 
-        # â”€â”€ 2. Authentication check via STS â”€â”€
+        # -- 2. Authentication check via STS --
         sts_cmd = "aws sts get-caller-identity --output json"
         sts = run_cli(sts_cmd, tag="AWS")
         status["debug"]["sts"] = {
@@ -65,7 +66,7 @@ class AWSProvider:
         }
 
         if sts["ok"]:
-            # CLI exit code 0 â†’ authenticated
+            # CLI exit code 0 -> authenticated
             status["authenticated"] = True
             parsed = parse_json(sts["stdout"])
             if isinstance(parsed, dict):
@@ -74,7 +75,7 @@ class AWSProvider:
         else:
             status["error"] = sts["stderr"] or "AWS credentials not configured"
 
-        # â”€â”€ 3. Environment hints â”€â”€
+        # -- 3. Environment hints --
         status["debug"]["env"] = {
             "AWS_PROFILE": os.environ.get("AWS_PROFILE", "(not set)"),
             "AWS_DEFAULT_REGION": os.environ.get("AWS_DEFAULT_REGION", "(not set)"),
@@ -84,8 +85,7 @@ class AWSProvider:
         return status
 
     async def get_status(self) -> Dict[str, Any]:
-        """Async wrapper â€” runs blocking subprocess in a thread."""
-        import asyncio
+        """Async wrapper -- runs blocking subprocess in a thread."""
         return await asyncio.to_thread(self.get_status_sync)
 
     async def get_costs(self, days: int = 30) -> List[NormalizedCost]:
@@ -94,9 +94,7 @@ class AWSProvider:
         return await billing.get_costs(days)
 
     async def get_infrastructure(self) -> List[Resource]:
-        """
-        Discovers infrastructure using modular collectors.
-        """
+        """Discovers infrastructure using modular collectors."""
         if not HAS_BOTO3:
             return []
 
@@ -110,16 +108,15 @@ class AWSProvider:
             RDSCollector(region=self.region)
         ]
 
-        import asyncio
         results = await asyncio.gather(*[c.collect() for c in collectors], return_exceptions=True)
-        
+
         all_resources = []
         for res in results:
             if isinstance(res, list):
                 all_resources.extend(res)
             else:
                 logger.error(f"[AWS] Collector failed: {res}")
-                
+
         return all_resources
 
     def get_resource_metadata(self, resource_id: str) -> dict:

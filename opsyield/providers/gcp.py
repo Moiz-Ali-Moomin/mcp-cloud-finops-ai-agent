@@ -50,20 +50,20 @@ class GCPProvider:
         self.project_id = project_id
         self.credentials_path = credentials_path
 
-    # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # -------------------------------------------------
     # Status Detection (unchanged from previous version)
-    # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # -------------------------------------------------
 
     def get_status_sync(self) -> Dict[str, Any]:
         """
-        Synchronous status check â€” called via asyncio.to_thread().
+        Synchronous status check -- called via asyncio.to_thread().
 
         Authentication logic:
-          1. shutil.which("gcloud") â†’ installed
+          1. shutil.which("gcloud") -> installed
           2. gcloud auth list --filter=status:ACTIVE --format=value(account)
-             â†’ if exit code 0 AND stdout non-empty â†’ authenticated
+             -> if exit code 0 AND stdout non-empty -> authenticated
           3. Fallback: gcloud auth application-default print-access-token
-             â†’ if exit code 0 â†’ authenticated (service account / ADC)
+             -> if exit code 0 -> authenticated (service account / ADC)
           4. gcloud projects list --format=json (optional, for project data)
         """
         status: Dict[str, Any] = {
@@ -74,7 +74,7 @@ class GCPProvider:
             "debug": {},
         }
 
-        # â”€â”€ 1. Installation check â”€â”€
+        # -- 1. Installation check --
         gcloud_path = shutil.which("gcloud")
         if not gcloud_path:
             status["error"] = "gcloud CLI not found on PATH"
@@ -83,7 +83,7 @@ class GCPProvider:
         status["installed"] = True
         status["debug"]["which"] = gcloud_path
 
-        # â”€â”€ 2. Primary auth check â”€â”€
+        # -- 2. Primary auth check --
         auth_cmd = "gcloud auth list --filter=status:ACTIVE --format=value(account)"
         auth = run_cli(auth_cmd, tag="GCP")
         status["debug"]["auth_list"] = {
@@ -96,7 +96,7 @@ class GCPProvider:
             status["authenticated"] = True
             status["debug"]["active_account"] = auth["stdout"].strip().split("\n")[0]
         else:
-            # â”€â”€ 3. Fallback: Application Default Credentials â”€â”€
+            # -- 3. Fallback: Application Default Credentials --
             adc_cmd = "gcloud auth application-default print-access-token"
             adc = run_cli(adc_cmd, timeout=10, tag="GCP")
             status["debug"]["adc"] = {
@@ -109,7 +109,7 @@ class GCPProvider:
             else:
                 status["error"] = auth["stderr"] or "No active gcloud account"
 
-        # â”€â”€ 4. Project list (informational, does NOT affect auth) â”€â”€
+        # -- 4. Project list (informational, does NOT affect auth) --
         if status["authenticated"]:
             proj = run_cli("gcloud projects list --format=json", tag="GCP")
             status["debug"]["projects_list"] = {
@@ -127,12 +127,12 @@ class GCPProvider:
         return status
 
     async def get_status(self) -> Dict[str, Any]:
-        """Async wrapper â€” runs blocking subprocess in a thread."""
+        """Async wrapper -- runs blocking subprocess in a thread."""
         return await asyncio.to_thread(self.get_status_sync)
 
-    # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # -------------------------------------------------
     # Cost Analysis via BigQuery Billing Export
-    # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # -------------------------------------------------
 
     async def get_costs(self, days: int = 30) -> List[NormalizedCost]:
         from ..billing.gcp import GCPBillingProvider
@@ -141,9 +141,9 @@ class GCPProvider:
 
 
 
-    # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # -------------------------------------------------
     # Resource-level costs (best-effort)
-    # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # -------------------------------------------------
 
     def _build_resource_cost_query(self, project_id: str, days: int) -> str:
         """
@@ -209,9 +209,9 @@ class GCPProvider:
         """Async wrapper for resource-level cost map (best-effort)."""
         return await asyncio.to_thread(self._get_resource_costs_sync, days)
 
-    # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # -------------------------------------------------
     # Infrastructure (stub)
-    # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # -------------------------------------------------
 
     async def get_infrastructure(self) -> List[Resource]:
         """

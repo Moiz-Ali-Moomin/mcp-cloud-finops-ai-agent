@@ -1,14 +1,18 @@
 """
-OpsYield Core — Domain layer.
+OpsYield Core -- Domain layer.
 
 Exports the primary classes used across the application.
+
+NOTE: Orchestrator and Scheduler are NOT imported here to avoid
+circular imports (they depend on providers which depend on core).
+Import them directly:
+    from opsyield.core.orchestrator import Orchestrator
+    from opsyield.core.scheduler import Scheduler
 """
 
 from .models import NormalizedCost, Resource, AnalysisResult, OptimizationStrategy
-from .orchestrator import Orchestrator
 from .aggregation import AggregationEngine
 from .snapshot import SnapshotManager, DiffResult
-from .scheduler import Scheduler
 from .logging import get_logger, set_correlation_id, get_correlation_id, TimedOperation
 
 __all__ = [
@@ -16,11 +20,9 @@ __all__ = [
     "Resource",
     "AnalysisResult",
     "OptimizationStrategy",
-    "Orchestrator",
     "AggregationEngine",
     "SnapshotManager",
     "DiffResult",
-    "Scheduler",
     "get_logger",
     "set_correlation_id",
     "get_correlation_id",

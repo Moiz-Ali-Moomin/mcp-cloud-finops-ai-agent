@@ -22,13 +22,13 @@ class AzureProvider:
 
     def get_status_sync(self) -> Dict[str, Any]:
         """
-        Synchronous status check â€” called via asyncio.to_thread().
+        Synchronous status check -- called via asyncio.to_thread().
 
         Authentication logic:
-          1. shutil.which("az") â†’ installed
+          1. shutil.which("az") -> installed
           2. az account show --output json
-             â†’ exit code 0 â†’ authenticated
-             â†’ Parse id (subscription), name, user from JSON stdout
+             -> exit code 0 -> authenticated
+             -> Parse id (subscription), name, user from JSON stdout
         """
         status: Dict[str, Any] = {
             "installed": False,
@@ -38,7 +38,7 @@ class AzureProvider:
             "debug": {},
         }
 
-        # â”€â”€ 1. Installation check â”€â”€
+        # -- 1. Installation check --
         az_path = shutil.which("az")
         if not az_path:
             status["error"] = "Azure CLI not found on PATH"
@@ -47,7 +47,7 @@ class AzureProvider:
         status["installed"] = True
         status["debug"]["which"] = az_path
 
-        # â”€â”€ 2. Authentication check via az account show â”€â”€
+        # -- 2. Authentication check via az account show --
         show_cmd = "az account show --output json"
         show = run_cli(show_cmd, tag="AZ")
         status["debug"]["account_show"] = {
@@ -57,7 +57,7 @@ class AzureProvider:
         }
 
         if show["ok"]:
-            # CLI exit code 0 â†’ authenticated
+            # CLI exit code 0 -> authenticated
             status["authenticated"] = True
             parsed = parse_json(show["stdout"])
             if isinstance(parsed, dict):
@@ -97,7 +97,7 @@ class AzureProvider:
             else:
                 status["error"] = show["stderr"] or "Azure credentials not configured"
 
-        # â”€â”€ 3. Environment hints â”€â”€
+        # -- 3. Environment hints --
         status["debug"]["env"] = {
             "AZURE_CONFIG_DIR": os.environ.get("AZURE_CONFIG_DIR", "(not set)"),
         }
@@ -105,7 +105,7 @@ class AzureProvider:
         return status
 
     async def get_status(self) -> Dict[str, Any]:
-        """Async wrapper â€” runs blocking subprocess in a thread."""
+        """Async wrapper -- runs blocking subprocess in a thread."""
         import asyncio
         return await asyncio.to_thread(self.get_status_sync)
 

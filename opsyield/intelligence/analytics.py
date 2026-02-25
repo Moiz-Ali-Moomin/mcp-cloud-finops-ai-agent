@@ -1,4 +1,4 @@
-﻿from typing import List, Dict, Any
+from typing import List, Dict, Any
 from datetime import datetime, timedelta
 from collections import defaultdict
 import statistics

@@ -1,4 +1,4 @@
-﻿import asyncio
+import asyncio
 from typing import List
 # azure-mgmt-storage is typically needed but wasn't in requirements.txt (only mgmt-resource, mgmt-compute, mgmt-costmanagement)
 # Hmmm, user said "New Python libraries... will be added".

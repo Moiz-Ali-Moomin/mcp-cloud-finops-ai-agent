@@ -1,4 +1,4 @@
-﻿from typing import List, Dict
+from typing import List, Dict
 from ..core.models import NormalizedCost, OptimizationStrategy
 
 class IdleScorer(OptimizationStrategy):

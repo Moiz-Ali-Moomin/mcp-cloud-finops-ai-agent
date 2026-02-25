@@ -1,1 +1,1 @@
-﻿from .base import BaseCollector
+from .base import BaseCollector

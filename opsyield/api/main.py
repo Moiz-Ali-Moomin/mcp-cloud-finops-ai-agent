@@ -1,4 +1,4 @@
-﻿"""
+"""
 OpsYield API Entrypoint
 Only responsible for starting the server.
 """

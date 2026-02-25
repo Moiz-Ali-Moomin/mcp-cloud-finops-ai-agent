@@ -1,4 +1,4 @@
-﻿import asyncio
+import asyncio
 from typing import List
 from azure.mgmt.compute import ComputeManagementClient
 from .base import AzureBaseCollector

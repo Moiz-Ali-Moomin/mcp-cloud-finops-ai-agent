@@ -1,4 +1,4 @@
-﻿import asyncio
+import asyncio
 from typing import List
 from google.cloud import storage
 from .base import GCPBaseCollector

@@ -1,4 +1,4 @@
-﻿"""
+"""
 OpsYield API
 Defines FastAPI application and routes.
 """

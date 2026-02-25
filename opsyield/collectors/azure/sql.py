@@ -1,4 +1,4 @@
-﻿import asyncio
+import asyncio
 from typing import List
 from azure.mgmt.resource import ResourceManagementClient
 from .base import AzureBaseCollector

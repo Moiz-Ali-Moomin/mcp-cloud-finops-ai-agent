@@ -1,4 +1,4 @@
-﻿from ..base import BaseCollector
+from ..base import BaseCollector
 import google.auth
 import google.auth.transport.requests
 from typing import Optional

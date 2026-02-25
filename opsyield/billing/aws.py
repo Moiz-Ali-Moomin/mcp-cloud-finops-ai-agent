@@ -1,4 +1,4 @@
-﻿from typing import List
+from typing import List
 from datetime import datetime, timedelta
 import boto3
 from .base import BillingProvider

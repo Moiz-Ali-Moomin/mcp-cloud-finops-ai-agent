@@ -1,4 +1,4 @@
-﻿"""
+"""
 GCP Provider — Production-grade cloud status + cost analysis.
 
 Status: subprocess.run(shell=True) for Windows .cmd compatibility.

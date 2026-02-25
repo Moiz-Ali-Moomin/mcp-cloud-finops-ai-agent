@@ -1,4 +1,4 @@
-﻿"""
+"""
 AWS Provider -- Production-grade cloud status detection.
 
 Uses subprocess.run(shell=True) for Windows .cmd compatibility.

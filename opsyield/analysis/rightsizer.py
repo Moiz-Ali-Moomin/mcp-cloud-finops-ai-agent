@@ -1,4 +1,4 @@
-﻿from typing import Optional
+from typing import Optional
 
 from ..core.models import Resource
 

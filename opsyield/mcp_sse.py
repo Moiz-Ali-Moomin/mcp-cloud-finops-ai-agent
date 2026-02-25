@@ -19,12 +19,12 @@ from opsyield.core.orchestrator import Orchestrator
 from opsyield.api.adapters.analysis_adapter import adapt_analysis_result
 
 
-# ✅ Correct transport security config for Cloudflare tunnel
+# Disable DNS rebinding protection for tunnel-based deployments (ngrok, Cloudflare)
+# Field name is 'enable_dns_rebinding_protection', NOT 'enabled'
 mcp = FastMCP(
     "OpsYieldFinOps",
     transport_security=TransportSecuritySettings(
-        enabled=True,
-        allowed_hosts=["*"]   # allow Cloudflare host header
+        enable_dns_rebinding_protection=False
     )
 )
 

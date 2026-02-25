@@ -1,4 +1,4 @@
-﻿from typing import Dict, Any
+from typing import Dict, Any
 from dataclasses import asdict
 from opsyield.core.models import AnalysisResult
 from opsyield.core.logging import get_logger

@@ -1,4 +1,4 @@
-﻿from typing import List
+from typing import List
 import asyncio
 from datetime import datetime, timedelta
 from ...core.models import Resource

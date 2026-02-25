@@ -1,4 +1,4 @@
-﻿"""
+"""
 Orchestrator — No-auth, no-DB provider dispatcher.
 
 Calls cloud providers directly (GCP, AWS, Azure) via CLI/SDK.

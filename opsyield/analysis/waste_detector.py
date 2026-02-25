@@ -1,4 +1,4 @@
-﻿from typing import List, Dict, Any
+from typing import List, Dict, Any
 from datetime import datetime, timezone
 
 from ..core.models import Resource

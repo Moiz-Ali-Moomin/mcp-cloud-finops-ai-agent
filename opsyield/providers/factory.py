@@ -1,4 +1,4 @@
-﻿"""
+"""
 ProviderFactory — Concurrent cloud status with timeout guards.
 
 Architecture:

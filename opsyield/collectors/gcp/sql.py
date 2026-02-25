@@ -1,4 +1,4 @@
-﻿import asyncio
+import asyncio
 from typing import List
 # Assuming google-cloud-sql or using google-api-python-client
 # For now, using a stub approach unless library is confirmed.

@@ -3,11 +3,9 @@ OpsYield Core -- Domain layer.
 
 Exports the primary classes used across the application.
 
-NOTE: Orchestrator and Scheduler are NOT imported here to avoid
-circular imports (they depend on providers which depend on core).
-Import them directly:
+NOTE: Orchestrator is NOT imported here to avoid circular imports
+(it depends on providers which depend on core). Import directly:
     from opsyield.core.orchestrator import Orchestrator
-    from opsyield.core.scheduler import Scheduler
 """
 
 from .models import NormalizedCost, Resource, AnalysisResult, OptimizationStrategy

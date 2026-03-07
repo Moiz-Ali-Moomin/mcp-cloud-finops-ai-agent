@@ -1,8 +1,5 @@
 import subprocess
 import json
-import time
-import pytest
-import sys
 
 
 def test_mcp_server_handshake():

@@ -1,6 +1,6 @@
 import boto3
 import asyncio
-from typing import List, Dict, Any
+from typing import List
 
 from ..base import BaseCollector
 from ...core.models import Resource

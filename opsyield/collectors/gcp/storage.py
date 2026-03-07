@@ -43,9 +43,7 @@ class GCPStorageCollector(GCPBaseCollector):
 
     async def health_check(self) -> bool:
         try:
-            client = storage.Client(
-                project=self.project_id, credentials=self.credentials
-            )
+            _ = storage.Client(project=self.project_id, credentials=self.credentials)
             return True
-        except:
+        except Exception:
             return False

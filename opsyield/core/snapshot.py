@@ -1,5 +1,5 @@
 import json
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 from dataclasses import dataclass, field
 
 from .logging import get_logger

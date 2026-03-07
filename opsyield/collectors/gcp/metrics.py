@@ -1,6 +1,6 @@
 from typing import List
 import asyncio
-from datetime import datetime, timedelta
+import time
 from ...core.models import Resource
 from ...core.logging import get_logger
 from gcp.base import GCPBaseCollector

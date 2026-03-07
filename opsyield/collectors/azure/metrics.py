@@ -1,5 +1,4 @@
 from typing import List
-import asyncio
 from ...core.models import Resource
 from ...core.logging import get_logger
 from azure.base import AzureBaseCollector

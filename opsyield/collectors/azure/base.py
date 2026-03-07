@@ -1,6 +1,5 @@
 from ..base import BaseCollector
 from azure.identity import DefaultAzureCredential
-from azure.mgmt.resource import ResourceManagementClient
 from typing import Optional
 import os
 

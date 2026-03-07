@@ -56,5 +56,5 @@ class AzureComputeCollector(AzureBaseCollector):
             client = ComputeManagementClient(self.credential, sub_id)
             client.virtual_machines.list(max_results=1)  # Verify access
             return True
-        except:
+        except Exception:
             return False

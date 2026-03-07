@@ -8,7 +8,6 @@ Authentication is determined by CLI exit code of `az account show`.
 import os
 import shutil
 from typing import List, Dict, Any
-from datetime import datetime, timedelta
 
 from ..core.models import NormalizedCost, Resource
 from ..core.logging import get_logger

@@ -7,12 +7,10 @@ Authentication is determined by CLI exit code, NOT by project list.
 """
 
 import asyncio
-import os
 import shutil
-import time
 from datetime import datetime, timedelta
 from decimal import Decimal
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 
 from ..core.models import NormalizedCost, Resource
 from ..core.logging import get_logger

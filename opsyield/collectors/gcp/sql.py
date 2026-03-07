@@ -1,4 +1,3 @@
-import asyncio
 from typing import List
 
 # Assuming google-cloud-sql or using google-api-python-client

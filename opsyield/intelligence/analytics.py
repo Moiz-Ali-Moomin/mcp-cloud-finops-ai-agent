@@ -1,6 +1,5 @@
 from typing import List, Dict, Any
-from datetime import datetime, timedelta
-from collections import defaultdict
+from datetime import datetime
 import statistics
 
 

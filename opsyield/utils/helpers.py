@@ -8,7 +8,7 @@ import asyncio
 import functools
 import time
 import logging
-from typing import Any, Callable, Dict, Optional, TypeVar
+from typing import Any, Callable, Dict, TypeVar
 from datetime import datetime, timedelta, timezone
 
 T = TypeVar("T")

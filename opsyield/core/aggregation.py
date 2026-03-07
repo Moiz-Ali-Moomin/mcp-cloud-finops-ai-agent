@@ -6,9 +6,9 @@ Merges AnalysisResult objects from multiple cloud providers into
 a unified multi-cloud view.
 """
 
-from typing import List, Dict, Any, Optional
+from typing import List, Dict
 from datetime import datetime
-from .models import AnalysisResult, Resource
+from .models import AnalysisResult
 from .logging import get_logger
 
 logger = get_logger(__name__)

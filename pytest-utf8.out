@@ -1,0 +1,92 @@
+﻿ssFF.............................................F                       [100%]
+================================== FAILURES ===================================
+___________________ TestCollectors.test_aws_collector_mock ____________________
+..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\pytest_asyncio\plugin.py:469: in runtest
+    super().runtest()
+..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\pytest_asyncio\plugin.py:716: in inner
+    runner.run(coro, context=context)
+..\..\AppData\Local\Programs\Python\Python313\Lib\asyncio\runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python313\Lib\asyncio\base_events.py:725: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python313\Lib\unittest\mock.py:1440: in patched
+    with self.decoration_helper(patched,
+..\..\AppData\Local\Programs\Python\Python313\Lib\contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python313\Lib\unittest\mock.py:1405: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python313\Lib\contextlib.py:530: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python313\Lib\unittest\mock.py:1497: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python313\Lib\unittest\mock.py:1467: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'opsyield.collectors.gcp.compute' from 'C:\\Users\\Haxor\\Desktop\\mcp-cloud-finops-ai-agent\\opsyield\\collectors\\gcp\\compute.py'> does not have the attribute 'collect_instances'
+___________________ TestCollectors.test_gcp_collector_mock ____________________
+..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\pytest_asyncio\plugin.py:469: in runtest
+    super().runtest()
+..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\pytest_asyncio\plugin.py:716: in inner
+    runner.run(coro, context=context)
+..\..\AppData\Local\Programs\Python\Python313\Lib\asyncio\runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python313\Lib\asyncio\base_events.py:725: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python313\Lib\unittest\mock.py:1440: in patched
+    with self.decoration_helper(patched,
+..\..\AppData\Local\Programs\Python\Python313\Lib\contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python313\Lib\unittest\mock.py:1405: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python313\Lib\contextlib.py:530: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python313\Lib\unittest\mock.py:1497: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python313\Lib\unittest\mock.py:1467: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'opsyield.collectors.gcp.compute' from 'C:\\Users\\Haxor\\Desktop\\mcp-cloud-finops-ai-agent\\opsyield\\collectors\\gcp\\compute.py'> does not have the attribute 'collect_instances'
+____________________ TestProviders.test_provider_creation _____________________
+..\..\AppData\Local\Programs\Python\Python313\Lib\unittest\mock.py:1423: in patched
+    with self.decoration_helper(patched,
+..\..\AppData\Local\Programs\Python\Python313\Lib\contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python313\Lib\unittest\mock.py:1405: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python313\Lib\contextlib.py:530: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python313\Lib\unittest\mock.py:1497: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python313\Lib\unittest\mock.py:1467: in get_original
+    raise AttributeError(
+E   AttributeError: <class 'opsyield.providers.factory.ProviderFactory'> does not have the attribute 'create'
+============================== warnings summary ===============================
+opsyield/tests/test_core.py::TestAggregationEngine::test_multi_provider_merge
+opsyield/tests/test_core.py::TestAggregationEngine::test_forecast_merge
+  C:\Users\Haxor\Desktop\mcp-cloud-finops-ai-agent\opsyield\core\aggregation.py:105: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "generated_at": datetime.utcnow().isoformat(),
+
+opsyield/tests/test_providers.py::TestProviders::test_provider_creation
+  opsyield\tests\test_providers.py:28: PytestWarning: The test <Function test_provider_creation> is marked with '@pytest.mark.asyncio' but it is not an async function. Please remove the asyncio mark. If the test is not marked explicitly, check for global marks applied via 'pytestmark'.
+    @patch("opsyield.providers.factory.ProviderFactory.create")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED opsyield/tests/test_collectors.py::TestCollectors::test_aws_collector_mock
+FAILED opsyield/tests/test_collectors.py::TestCollectors::test_gcp_collector_mock
+FAILED opsyield/tests/test_providers.py::TestProviders::test_provider_creation
+3 failed, 45 passed, 2 skipped, 3 warnings in 5.67s

@@ -1,7 +1,6 @@
 import boto3
 import asyncio
 from typing import List, Dict, Any
-from datetime import datetime
 
 from ..base import BaseCollector
 from ...core.models import Resource

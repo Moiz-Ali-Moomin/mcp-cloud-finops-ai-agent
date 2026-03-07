@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List
 import boto3
 from datetime import datetime, timedelta
 import asyncio

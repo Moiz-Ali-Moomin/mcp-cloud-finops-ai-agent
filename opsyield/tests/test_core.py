@@ -10,13 +10,9 @@ Covers:
 """
 
 import json
-import os
 import time
-import asyncio
-import tempfile
 import pytest
 from datetime import datetime, timezone
-from unittest.mock import patch
 
 # ─────────────────────────────────────────────────────────────
 # Models
@@ -168,7 +164,7 @@ class TestLogging:
 
     def test_timed_operation_logs_duration(self):
         logger = get_logger("test_timer")
-        with TimedOperation(logger, "test_op") as t:
+        with TimedOperation(logger, "test_op") as _:
             time.sleep(0.01)
         # No exception means success
 
@@ -351,7 +347,7 @@ class TestRetry:
 # Snapshot
 # ─────────────────────────────────────────────────────────────
 
-from opsyield.core.snapshot import SnapshotManager, DiffResult
+from opsyield.core.snapshot import SnapshotManager
 
 
 class TestSnapshotManager:

@@ -1,8 +1,11 @@
 import json
 import os
 import sys
-from dataclasses import asdict
 from pathlib import Path
+from opsyield.core.logging import configure_logging
+from mcp.server.fastmcp import FastMCP
+from opsyield.core.orchestrator import Orchestrator
+from opsyield.api.adapters.analysis_adapter import adapt_analysis_result
 
 # Ensure the project root is on sys.path so 'opsyield' package is discoverable
 # Required when Claude Desktop (or other MCP clients) run this script directly
@@ -11,13 +14,7 @@ if _PROJECT_ROOT not in sys.path:
     sys.path.insert(0, _PROJECT_ROOT)
 
 # Force ALL logs to stderr (never stdout) — critical for MCP protocol
-from opsyield.core.logging import configure_logging
-
 configure_logging(level="ERROR", stream=sys.stderr)
-
-from mcp.server.fastmcp import FastMCP
-from opsyield.core.orchestrator import Orchestrator
-from opsyield.api.adapters.analysis_adapter import adapt_analysis_result
 
 mcp = FastMCP("OpsYieldFinOps")
 _orchestrator = Orchestrator()

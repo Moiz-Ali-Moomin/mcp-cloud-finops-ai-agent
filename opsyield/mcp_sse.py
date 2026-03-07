@@ -4,20 +4,18 @@ import json
 import os
 import sys
 from pathlib import Path
+from opsyield.core.logging import configure_logging
+from mcp.server.fastmcp import FastMCP
+from mcp.server.transport_security import TransportSecuritySettings
+from opsyield.core.orchestrator import Orchestrator
+from opsyield.api.adapters.analysis_adapter import adapt_analysis_result
 
 # Ensure project root is discoverable
 _PROJECT_ROOT = str(Path(__file__).resolve().parent.parent)
 if _PROJECT_ROOT not in sys.path:
     sys.path.insert(0, _PROJECT_ROOT)
 
-from opsyield.core.logging import configure_logging
-
 configure_logging(level="ERROR", stream=sys.stderr)
-
-from mcp.server.fastmcp import FastMCP
-from mcp.server.transport_security import TransportSecuritySettings
-from opsyield.core.orchestrator import Orchestrator
-from opsyield.api.adapters.analysis_adapter import adapt_analysis_result
 
 # Disable DNS rebinding protection for tunnel-based deployments (ngrok, Cloudflare)
 # Field name is 'enable_dns_rebinding_protection', NOT 'enabled'

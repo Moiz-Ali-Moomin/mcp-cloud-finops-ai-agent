@@ -52,5 +52,5 @@ class AzureStorageCollector(AzureBaseCollector):
             client = ResourceManagementClient(self.credential, sub_id)
             client.resources.list_top(1)
             return True
-        except:
+        except Exception:
             return False

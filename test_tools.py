@@ -1,5 +1,4 @@
 import asyncio
-import sys
 from opsyield.mcp_stdio import run_finops_intelligence, aggregate_finops
 
 

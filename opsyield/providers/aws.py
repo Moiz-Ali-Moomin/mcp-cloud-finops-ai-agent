@@ -9,11 +9,10 @@ import os
 import shutil
 import asyncio
 from typing import List, Dict, Any, Optional
-from datetime import datetime, timedelta
 
 try:
-    import boto3
-    from botocore.exceptions import ClientError, NoCredentialsError
+    import boto3  # noqa: F401
+    from botocore.exceptions import ClientError, NoCredentialsError  # noqa: F401
 
     HAS_BOTO3 = True
 except ImportError:

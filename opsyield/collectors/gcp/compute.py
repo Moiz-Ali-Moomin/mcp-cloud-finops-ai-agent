@@ -51,7 +51,7 @@ class GCPComputeCollector(GCPBaseCollector):
                 created_dt = datetime.fromisoformat(
                     creation_ts
                 )  # Requires recent Python for full ISO
-            except:
+            except Exception:
                 pass
 
         # Network Interfaces for IP
@@ -78,8 +78,8 @@ class GCPComputeCollector(GCPBaseCollector):
 
     async def health_check(self) -> bool:
         try:
-            client = compute_v1.InstancesClient(credentials=self.credentials)
+            _ = compute_v1.InstancesClient(credentials=self.credentials)
             # Just verify client creation and project
             return True
-        except:
+        except Exception:
             return False

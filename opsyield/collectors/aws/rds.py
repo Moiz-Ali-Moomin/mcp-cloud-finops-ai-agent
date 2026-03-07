@@ -37,7 +37,7 @@ class RDSCollector(BaseCollector):
 
     def _parse_instance(self, inst: Dict[str, Any]) -> Resource:
         db_id = inst.get("DBInstanceIdentifier")
-        engine = inst.get("Engine")
+        _ = inst.get("Engine")
         status = inst.get("DBInstanceStatus")
         instance_class = inst.get("DBInstanceClass")
         allocated_storage = inst.get("AllocatedStorage")

@@ -152,8 +152,13 @@ class TestLogging:
 
         formatter = StructuredJSONFormatter()
         record = logging.LogRecord(
-            name="test", level=logging.INFO, pathname="", lineno=0,
-            msg="hello world", args=(), exc_info=None,
+            name="test",
+            level=logging.INFO,
+            pathname="",
+            lineno=0,
+            msg="hello world",
+            args=(),
+            exc_info=None,
         )
         output = formatter.format(record)
         data = json.loads(output)
@@ -179,7 +184,11 @@ class TestAggregationEngine:
     def _make_result(self, provider, cost, resources=None):
         return AnalysisResult(
             meta={"provider": provider},
-            summary={"total_cost": cost, "total_waste": cost * 0.1, "resource_count": len(resources or [])},
+            summary={
+                "total_cost": cost,
+                "total_waste": cost * 0.1,
+                "resource_count": len(resources or []),
+            },
             executive_summary={"risk_score": 5},
             trends={},
             daily_trends=[{"date": "2026-01-01", "amount": cost}],
@@ -203,8 +212,12 @@ class TestAggregationEngine:
 
     def test_multi_provider_merge(self):
         engine = AggregationEngine()
-        r1 = self._make_result("gcp", 100, [Resource(id="1", name="vm", type="vm", provider="gcp")])
-        r2 = self._make_result("aws", 200, [Resource(id="2", name="ec2", type="ec2", provider="aws")])
+        r1 = self._make_result(
+            "gcp", 100, [Resource(id="1", name="vm", type="vm", provider="gcp")]
+        )
+        r2 = self._make_result(
+            "aws", 200, [Resource(id="2", name="ec2", type="ec2", provider="aws")]
+        )
         result = engine.merge([r1, r2])
 
         assert result.summary["total_cost"] == 300.0
@@ -351,16 +364,28 @@ class TestSnapshotManager:
         assert loaded["summary"]["total_cost"] == 100
 
     def test_compare_no_regression(self):
-        baseline = {"summary": {"total_cost": 100}, "executive_summary": {"risk_score": 5}}
-        current = {"summary": {"total_cost": 100}, "executive_summary": {"risk_score": 5}}
+        baseline = {
+            "summary": {"total_cost": 100},
+            "executive_summary": {"risk_score": 5},
+        }
+        current = {
+            "summary": {"total_cost": 100},
+            "executive_summary": {"risk_score": 5},
+        }
 
         result = SnapshotManager.compare(baseline, current)
         assert not result.is_regression
         assert result.cost_increase_pct == 0
 
     def test_compare_cost_regression(self):
-        baseline = {"summary": {"total_cost": 100}, "executive_summary": {"risk_score": 5}}
-        current = {"summary": {"total_cost": 150}, "executive_summary": {"risk_score": 5}}
+        baseline = {
+            "summary": {"total_cost": 100},
+            "executive_summary": {"risk_score": 5},
+        }
+        current = {
+            "summary": {"total_cost": 150},
+            "executive_summary": {"risk_score": 5},
+        }
 
         result = SnapshotManager.compare(baseline, current, cost_threshold_pct=10)
         assert result.is_regression
@@ -405,8 +430,12 @@ from opsyield.optimization.strategies import IdleScorer, OptimizationEngine
 class TestOptimizationStrategies:
     def test_idle_scorer_tagged_idle(self):
         cost = NormalizedCost(
-            provider="aws", service="EC2", region="us-east-1",
-            resource_id="i-1", cost=100, currency="USD",
+            provider="aws",
+            service="EC2",
+            region="us-east-1",
+            resource_id="i-1",
+            cost=100,
+            currency="USD",
             timestamp=datetime.now(timezone.utc),
             tags={"idle": "true"},
         )
@@ -417,8 +446,12 @@ class TestOptimizationStrategies:
 
     def test_idle_scorer_not_idle(self):
         cost = NormalizedCost(
-            provider="aws", service="EC2", region="us-east-1",
-            resource_id="i-1", cost=10, currency="USD",
+            provider="aws",
+            service="EC2",
+            region="us-east-1",
+            resource_id="i-1",
+            cost=10,
+            currency="USD",
             timestamp=datetime.now(timezone.utc),
         )
         scorer = IdleScorer()
@@ -428,14 +461,22 @@ class TestOptimizationStrategies:
     def test_optimization_engine_end_to_end(self):
         costs = [
             NormalizedCost(
-                provider="aws", service="EC2", region="us-east-1",
-                resource_id="i-idle", cost=100, currency="USD",
+                provider="aws",
+                service="EC2",
+                region="us-east-1",
+                resource_id="i-idle",
+                cost=100,
+                currency="USD",
                 timestamp=datetime.now(timezone.utc),
                 tags={"idle": "true"},
             ),
             NormalizedCost(
-                provider="gcp", service="Compute", region="us-central1",
-                resource_id="vm-ok", cost=50, currency="USD",
+                provider="gcp",
+                service="Compute",
+                region="us-central1",
+                resource_id="vm-ok",
+                cost=50,
+                currency="USD",
                 timestamp=datetime.now(timezone.utc),
             ),
         ]

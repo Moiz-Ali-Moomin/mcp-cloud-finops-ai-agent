@@ -4,6 +4,7 @@ import time
 import pytest
 import sys
 
+
 def test_mcp_server_handshake():
     """
     Integration test to verify that the MCP server starts correctly,
@@ -15,7 +16,7 @@ def test_mcp_server_handshake():
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        text=True
+        text=True,
     )
 
     try:
@@ -25,13 +26,10 @@ def test_mcp_server_handshake():
             "id": 1,
             "method": "initialize",
             "params": {
-                "protocolVersion": "2024-11-05", # FastMCP uses this or similar
+                "protocolVersion": "2024-11-05",  # FastMCP uses this or similar
                 "capabilities": {},
-                "clientInfo": {
-                    "name": "integration-test-client",
-                    "version": "1.0.0"
-                }
-            }
+                "clientInfo": {"name": "integration-test-client", "version": "1.0.0"},
+            },
         }
 
         # Send request
@@ -40,11 +38,13 @@ def test_mcp_server_handshake():
 
         # Read response
         response_line = process.stdout.readline()
-        assert response_line.strip(), "Server did not return a response before terminating."
-        
+        assert (
+            response_line.strip()
+        ), "Server did not return a response before terminating."
+
         # Parse response
         response = json.loads(response_line)
-        
+
         # Assertions
         assert response.get("jsonrpc") == "2.0"
         assert response.get("id") == 1

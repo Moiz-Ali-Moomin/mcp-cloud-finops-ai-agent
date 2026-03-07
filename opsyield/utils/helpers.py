@@ -11,7 +11,6 @@ import logging
 from typing import Any, Callable, Dict, Optional, TypeVar
 from datetime import datetime, timedelta, timezone
 
-
 T = TypeVar("T")
 logger = logging.getLogger("opsyield.utils")
 
@@ -19,6 +18,7 @@ logger = logging.getLogger("opsyield.utils")
 # ─────────────────────────────────────────────────────────────
 # Retry Decorator (Sync + Async)
 # ─────────────────────────────────────────────────────────────
+
 
 def retry(
     max_attempts: int = 3,
@@ -35,6 +35,7 @@ def retry(
         async def fetch_data():
             ...
     """
+
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
         async def async_wrapper(*args, **kwargs):
@@ -81,6 +82,7 @@ def retry(
 # Date Helpers
 # ─────────────────────────────────────────────────────────────
 
+
 def utc_now() -> datetime:
     """Return current UTC datetime (timezone-aware)."""
     return datetime.now(timezone.utc)
@@ -108,6 +110,7 @@ def iso_now() -> str:
 # ─────────────────────────────────────────────────────────────
 # Safe Data Access
 # ─────────────────────────────────────────────────────────────
+
 
 def safe_get(data: Dict, *keys, default: Any = None) -> Any:
     """
@@ -150,6 +153,7 @@ def safe_round(value: Any, decimals: int = 2, default: float = 0.0) -> float:
 # Batch Processing
 # ─────────────────────────────────────────────────────────────
 
+
 def chunk_list(items: list, chunk_size: int) -> list:
     """
     Split a list into chunks of specified size.
@@ -158,7 +162,7 @@ def chunk_list(items: list, chunk_size: int) -> list:
         for batch in chunk_list(resources, 50):
             process_batch(batch)
     """
-    return [items[i:i + chunk_size] for i in range(0, len(items), chunk_size)]
+    return [items[i : i + chunk_size] for i in range(0, len(items), chunk_size)]
 
 
 async def gather_with_limit(coros, limit: int = 5):

@@ -1,11 +1,13 @@
 """
 Tests for FinOps Analysis Engine.
 """
+
 import pytest
 from unittest.mock import MagicMock
 
 from opsyield.analysis.waste_detector import analyze_waste
 from opsyield.core.models import Resource
+
 
 class TestAnalysisEngine:
     def test_waste_detector_idle_compute(self):
@@ -16,25 +18,25 @@ class TestAnalysisEngine:
             type="compute",
             provider="aws",
             state="RUNNING",
-            cpu_avg=1.5,      # Very low CPU
+            cpu_avg=1.5,  # Very low CPU
             memory_avg=10.0,
-            cost_30d=150.0
+            cost_30d=150.0,
         )
-        
+
         active_resource = Resource(
             id="i-active456",
             name="prod-db",
             type="compute",
             provider="aws",
             state="RUNNING",
-            cpu_avg=65.0,     # High CPU
+            cpu_avg=65.0,  # High CPU
             memory_avg=80.0,
-            cost_30d=450.0
+            cost_30d=450.0,
         )
-        
+
         # Test detection logic
         findings = analyze_waste([idle_resource, active_resource])
-        
+
         # Should only flag the idle resource
         assert len(findings) == 1
         assert findings[0]["resource_id"] == "i-idle123"
@@ -47,10 +49,10 @@ class TestAnalysisEngine:
             name="old-backup",
             type="disk",
             provider="aws",
-            state="AVAILABLE", # Available but not in-use
-            cost_30d=25.0
+            state="AVAILABLE",  # Available but not in-use
+            cost_30d=25.0,
         )
-        
+
         findings = analyze_waste([unattached_disk])
         assert len(findings) == 1
         assert "unattached" in findings[0]["reason"].lower()

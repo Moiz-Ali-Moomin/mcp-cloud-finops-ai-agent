@@ -11,6 +11,7 @@ if _PROJECT_ROOT not in sys.path:
     sys.path.insert(0, _PROJECT_ROOT)
 
 from opsyield.core.logging import configure_logging
+
 configure_logging(level="ERROR", stream=sys.stderr)
 
 from mcp.server.fastmcp import FastMCP
@@ -18,14 +19,11 @@ from mcp.server.transport_security import TransportSecuritySettings
 from opsyield.core.orchestrator import Orchestrator
 from opsyield.api.adapters.analysis_adapter import adapt_analysis_result
 
-
 # Disable DNS rebinding protection for tunnel-based deployments (ngrok, Cloudflare)
 # Field name is 'enable_dns_rebinding_protection', NOT 'enabled'
 mcp = FastMCP(
     "OpsYieldFinOps",
-    transport_security=TransportSecuritySettings(
-        enable_dns_rebinding_protection=False
-    )
+    transport_security=TransportSecuritySettings(enable_dns_rebinding_protection=False),
 )
 
 _orchestrator = Orchestrator()
@@ -36,7 +34,7 @@ async def run_finops_intelligence(
     provider: str = "gcp",
     days: int = 7,
     project_id: str = "",
-    subscription_id: str = ""
+    subscription_id: str = "",
 ) -> str:
 
     effective_project_id = project_id.strip() or os.getenv("GOOGLE_CLOUD_PROJECT")
@@ -53,9 +51,7 @@ async def run_finops_intelligence(
 
 @mcp.tool()
 async def aggregate_finops(
-    providers: str = "gcp,aws",
-    days: int = 7,
-    subscription_id: str = ""
+    providers: str = "gcp,aws", days: int = 7, subscription_id: str = ""
 ) -> str:
 
     provider_list = [p.strip() for p in providers.split(",") if p.strip()]
@@ -74,9 +70,5 @@ if __name__ == "__main__":
 
     app = mcp.sse_app()
     uvicorn.run(
-        app,
-        host="0.0.0.0",
-        port=8001,
-        proxy_headers=True,
-        forwarded_allow_ips="*"
+        app, host="0.0.0.0", port=8001, proxy_headers=True, forwarded_allow_ips="*"
     )

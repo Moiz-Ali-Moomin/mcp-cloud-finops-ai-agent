@@ -5,7 +5,13 @@ from ..core.models import Resource
 
 class RecommendationEngine:
 
-    def build(self, resource: Resource, idle_score: int, suggestion: Optional[str], savings: float) -> List[str]:
+    def build(
+        self,
+        resource: Resource,
+        idle_score: int,
+        suggestion: Optional[str],
+        savings: float,
+    ) -> List[str]:
 
         recommendations = []
 

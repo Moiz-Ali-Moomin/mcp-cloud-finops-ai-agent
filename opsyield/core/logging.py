@@ -24,7 +24,6 @@ from contextvars import ContextVar
 from datetime import datetime, timezone
 from typing import Optional
 
-
 # ─────────────────────────────────────────────────────────────
 # Correlation ID Context
 # ─────────────────────────────────────────────────────────────
@@ -47,6 +46,7 @@ def get_correlation_id() -> Optional[str]:
 # ─────────────────────────────────────────────────────────────
 # JSON Formatter
 # ─────────────────────────────────────────────────────────────
+
 
 class StructuredJSONFormatter(logging.Formatter):
     """
@@ -71,7 +71,13 @@ class StructuredJSONFormatter(logging.Formatter):
             log_entry["correlation_id"] = cid
 
         # Merge any extra fields passed via `extra={}`
-        for key in ("request_id", "provider", "duration_ms", "resource_count", "error_type"):
+        for key in (
+            "request_id",
+            "provider",
+            "duration_ms",
+            "resource_count",
+            "error_type",
+        ):
             val = getattr(record, key, None)
             if val is not None:
                 log_entry[key] = val
@@ -114,10 +120,12 @@ def configure_logging(
     if fmt == "json":
         handler.setFormatter(StructuredJSONFormatter())
     else:
-        handler.setFormatter(logging.Formatter(
-            "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
-            datefmt="%Y-%m-%dT%H:%M:%S",
-        ))
+        handler.setFormatter(
+            logging.Formatter(
+                "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
+                datefmt="%Y-%m-%dT%H:%M:%S",
+            )
+        )
 
     root.addHandler(handler)
 
@@ -129,6 +137,7 @@ def configure_logging(
 # ─────────────────────────────────────────────────────────────
 # Public API
 # ─────────────────────────────────────────────────────────────
+
 
 def get_logger(name: str) -> logging.Logger:
     """

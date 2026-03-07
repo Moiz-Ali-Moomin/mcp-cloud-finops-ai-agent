@@ -28,18 +28,22 @@ class WasteDetector:
                 days_running = (now - created_at).days
                 if days_running > self.MAX_RUNTIME_DAYS:
                     if any(x in name for x in ["tmp", "temp", "test", "poc"]):
-                         reasons.append(f"Temporary resource running for {days_running} days")
+                        reasons.append(
+                            f"Temporary resource running for {days_running} days"
+                        )
 
             # 3. Orphaned IPs
             if r.type == "ip_address" and state == "reserved":
-                 reasons.append("Unattached IP address")
+                reasons.append("Unattached IP address")
 
             if reasons:
-                waste.append({
-                    "name": r.name,
-                    "type": r.type or "unknown",
-                    "reasons": reasons,
-                    "cost_30d": cost
-                })
+                waste.append(
+                    {
+                        "name": r.name,
+                        "type": r.type or "unknown",
+                        "reasons": reasons,
+                        "cost_30d": cost,
+                    }
+                )
 
         return waste

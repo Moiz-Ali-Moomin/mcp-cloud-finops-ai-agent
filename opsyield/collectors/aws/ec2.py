@@ -6,10 +6,11 @@ from datetime import datetime
 from ..base import BaseCollector
 from ...core.models import Resource
 
+
 class EC2Collector(BaseCollector):
     def __init__(self, region: str = "us-east-1"):
         super().__init__("aws", region)
-    
+
     async def collect(self) -> List[Resource]:
         return await asyncio.to_thread(self._collect_sync)
 
@@ -27,11 +28,13 @@ class EC2Collector(BaseCollector):
                             r = self._parse_instance(inst)
                             resources.append(r)
                         except Exception as e:
-                            self._handle_error(f"parse_instance {inst.get('InstanceId')}", e)
+                            self._handle_error(
+                                f"parse_instance {inst.get('InstanceId')}", e
+                            )
                             continue
         except Exception as e:
             self._handle_error("collect_ec2", e)
-        
+
         return resources
 
     def _parse_instance(self, inst: Dict[str, Any]) -> Resource:
@@ -39,12 +42,12 @@ class EC2Collector(BaseCollector):
         instance_type = inst.get("InstanceType", "unknown")
         state = (inst.get("State") or {}).get("Name", "unknown")
         launch_time = inst.get("LaunchTime")
-        
+
         tags = self._normalize_tags(inst.get("Tags", []))
         name = tags.get("Name", instance_id)
-        
+
         public_ip = inst.get("PublicIpAddress")
-        
+
         # Calculate scores (logic can be expanded)
         risk_score = 0
         if public_ip and state == "running":
@@ -59,7 +62,7 @@ class EC2Collector(BaseCollector):
             vol_id = ebs.get("VolumeId")
             if vol_id:
                 deps.append(vol_id)
-                
+
         # Security Groups
         for sg in inst.get("SecurityGroups", []):
             sg_id = sg.get("GroupId")
@@ -84,17 +87,18 @@ class EC2Collector(BaseCollector):
             external_ip=public_ip,
             tags=tags,
             risk_score=risk_score,
-            dependencies=deps
+            dependencies=deps,
         )
 
     async def health_check(self) -> bool:
         try:
+
             def _check():
                 session = boto3.Session(region_name=self.region)
                 ec2 = session.client("ec2")
                 ec2.describe_instances(MaxResults=5)
                 return True
-            
+
             return await asyncio.to_thread(_check)
         except Exception as e:
             self._handle_error("health_check", e)

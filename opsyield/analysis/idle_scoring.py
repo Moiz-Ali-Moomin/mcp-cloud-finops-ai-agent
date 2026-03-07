@@ -5,7 +5,9 @@ from ..core.models import Resource
 
 class IdleScorer:
 
-    def calculate_score(self, resource: Resource, cpu_avg: Optional[float] = None) -> int:
+    def calculate_score(
+        self, resource: Resource, cpu_avg: Optional[float] = None
+    ) -> int:
         score = 0
         state = (resource.state or "").lower()
 

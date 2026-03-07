@@ -1,7 +1,7 @@
-
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Optional
 from ..core.models import NormalizedCost, Resource
+
 
 class CloudProvider(ABC):
     @abstractmethod
@@ -18,7 +18,9 @@ class CloudProvider(ABC):
     def get_resource_metadata(self, resource_id: str) -> dict:
         pass
 
-    async def get_utilization_metrics(self, resources: List[Resource], period_days: int = 7) -> List[Resource]:
+    async def get_utilization_metrics(
+        self, resources: List[Resource], period_days: int = 7
+    ) -> List[Resource]:
         """
         Fetch utilization metrics (CPU, Memory, IO) for the given resources.
         Returns the list of resources enriched with metrics.

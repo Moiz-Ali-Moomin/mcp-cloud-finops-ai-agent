@@ -5,6 +5,7 @@ from typing import List, Dict, Any
 from ..base import BaseCollector
 from ...core.models import Resource
 
+
 class RDSCollector(BaseCollector):
     def __init__(self, region: str = "us-east-1"):
         super().__init__("aws", region)
@@ -25,11 +26,13 @@ class RDSCollector(BaseCollector):
                         r = self._parse_instance(instance)
                         resources.append(r)
                     except Exception as e:
-                        self._handle_error(f"parse_rds {instance.get('DBInstanceIdentifier')}", e)
+                        self._handle_error(
+                            f"parse_rds {instance.get('DBInstanceIdentifier')}", e
+                        )
                         continue
         except Exception as e:
             self._handle_error("collect_rds", e)
-        
+
         return resources
 
     def _parse_instance(self, inst: Dict[str, Any]) -> Resource:
@@ -47,7 +50,7 @@ class RDSCollector(BaseCollector):
         waste_reasons = []
 
         if is_public:
-            risk_score += 50 # High risk
+            risk_score += 50  # High risk
             waste_reasons.append("Publicly accessible database")
 
         return self._create_resource(
@@ -60,16 +63,18 @@ class RDSCollector(BaseCollector):
             tags=tags,
             risk_score=risk_score,
             waste_reasons=waste_reasons,
-            optimizations=[{"type": "storage", "value": f"{allocated_storage}GB"}]
+            optimizations=[{"type": "storage", "value": f"{allocated_storage}GB"}],
         )
 
     async def health_check(self) -> bool:
         try:
+
             def _check():
                 session = boto3.Session(region_name=self.region)
                 rds = session.client("rds")
                 rds.describe_db_instances(MaxRecords=20)
                 return True
+
             return await asyncio.to_thread(_check)
         except Exception:
             return False

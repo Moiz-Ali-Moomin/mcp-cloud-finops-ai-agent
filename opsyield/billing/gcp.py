@@ -10,6 +10,7 @@ import os
 
 logger = get_logger(__name__)
 
+
 class GCPBillingProvider(BillingProvider):
     # BigQuery billing export dataset/table pattern
     _BQ_DATASET = "billing_export"
@@ -34,7 +35,7 @@ class GCPBillingProvider(BillingProvider):
 
         start_date = (datetime.utcnow() - timedelta(days=days)).strftime("%Y-%m-%d")
         table = f"`{self.project_id}.{self._BQ_DATASET}.{self._BQ_TABLE_PATTERN}`"
-        
+
         query = f"""
             SELECT
                 service.description    AS service_name,
@@ -55,28 +56,34 @@ class GCPBillingProvider(BillingProvider):
             client = bigquery.Client(project=self.project_id)
             query_job = client.query(query)
             rows = list(query_job.result())
-            
+
             costs = []
-            now = datetime.utcnow() # Use query timestamp if available
-            
+            now = datetime.utcnow()  # Use query timestamp if available
+
             for row in rows:
                 raw_cost = row.get("total_cost", 0)
-                cost_float = float(raw_cost) if isinstance(raw_cost, Decimal) else float(raw_cost or 0)
-                
+                cost_float = (
+                    float(raw_cost)
+                    if isinstance(raw_cost, Decimal)
+                    else float(raw_cost or 0)
+                )
+
                 # BigQuery returns datetime objects
                 ts = row.get("usage_timestamp") or now
 
-                costs.append(NormalizedCost(
-                    provider="gcp",
-                    service=row.get("service_name", "Unknown"),
-                    region="global",
-                    resource_id="aggregated",
-                    cost=round(cost_float, 4),
-                    currency=row.get("currency", "USD"),
-                    timestamp=ts,
-                    tags={},
-                    project_id=self.project_id
-                ))
+                costs.append(
+                    NormalizedCost(
+                        provider="gcp",
+                        service=row.get("service_name", "Unknown"),
+                        region="global",
+                        resource_id="aggregated",
+                        cost=round(cost_float, 4),
+                        currency=row.get("currency", "USD"),
+                        timestamp=ts,
+                        tags={},
+                        project_id=self.project_id,
+                    )
+                )
             return costs
 
         except Exception as e:

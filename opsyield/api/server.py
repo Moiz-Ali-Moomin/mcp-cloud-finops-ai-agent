@@ -11,11 +11,15 @@ from fastapi.middleware.cors import CORSMiddleware
 import uuid
 
 from ..core.orchestrator import Orchestrator
-from ..core.logging import get_logger, set_correlation_id, get_correlation_id, TimedOperation
+from ..core.logging import (
+    get_logger,
+    set_correlation_id,
+    get_correlation_id,
+    TimedOperation,
+)
 from ..core.config import validate_environment
 from ..providers.factory import ProviderFactory
 from .adapters.analysis_adapter import adapt_analysis_result
-
 
 logger = get_logger(__name__)
 _orchestrator = Orchestrator()
@@ -24,6 +28,7 @@ _orchestrator = Orchestrator()
 # ─────────────────────────────────────────────
 # Provider Enum (Validation Layer)
 # ─────────────────────────────────────────────
+
 
 class Provider(str, Enum):
     gcp = "gcp"
@@ -49,15 +54,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.on_event("startup")
 async def startup_event():
     validate_environment()
+
 
 @app.middleware("http")
 async def request_tracing_middleware(request: Request, call_next):
     req_id = request.headers.get("X-Correlation-ID") or uuid.uuid4().hex[:12]
     set_correlation_id(req_id)
-    
+
     with TimedOperation(logger, f"HTTP {request.method} {request.url.path}"):
         response = await call_next(request)
         response.headers["X-Correlation-ID"] = get_correlation_id() or req_id
@@ -67,6 +74,7 @@ async def request_tracing_middleware(request: Request, call_next):
 # ─────────────────────────────────────────────
 # Routes
 # ─────────────────────────────────────────────
+
 
 @app.get("/api/health")
 def health_check():

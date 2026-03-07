@@ -12,6 +12,7 @@ if _PROJECT_ROOT not in sys.path:
 
 # Force ALL logs to stderr (never stdout) — critical for MCP protocol
 from opsyield.core.logging import configure_logging
+
 configure_logging(level="ERROR", stream=sys.stderr)
 
 from mcp.server.fastmcp import FastMCP
@@ -27,7 +28,7 @@ async def run_finops_intelligence(
     provider: str = "gcp",
     days: int = 7,
     project_id: str = "",
-    subscription_id: str = ""
+    subscription_id: str = "",
 ) -> str:
     """
     Run FinOps analysis for a given cloud provider.
@@ -48,9 +49,7 @@ async def run_finops_intelligence(
 
 @mcp.tool()
 async def aggregate_finops(
-    providers: str = "gcp,aws",
-    days: int = 7,
-    subscription_id: str = ""
+    providers: str = "gcp,aws", days: int = 7, subscription_id: str = ""
 ) -> str:
     """
     Aggregate analysis across multiple providers.

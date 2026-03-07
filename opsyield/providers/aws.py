@@ -4,6 +4,7 @@ AWS Provider -- Production-grade cloud status detection.
 Uses subprocess.run(shell=True) for Windows .cmd compatibility.
 Authentication is determined by CLI exit code of `aws sts get-caller-identity`.
 """
+
 import os
 import shutil
 import asyncio
@@ -13,6 +14,7 @@ from datetime import datetime, timedelta
 try:
     import boto3
     from botocore.exceptions import ClientError, NoCredentialsError
+
     HAS_BOTO3 = True
 except ImportError:
     HAS_BOTO3 = False
@@ -79,7 +81,9 @@ class AWSProvider:
         status["debug"]["env"] = {
             "AWS_PROFILE": os.environ.get("AWS_PROFILE", "(not set)"),
             "AWS_DEFAULT_REGION": os.environ.get("AWS_DEFAULT_REGION", "(not set)"),
-            "AWS_ACCESS_KEY_ID": "***set***" if os.environ.get("AWS_ACCESS_KEY_ID") else "(not set)",
+            "AWS_ACCESS_KEY_ID": (
+                "***set***" if os.environ.get("AWS_ACCESS_KEY_ID") else "(not set)"
+            ),
         }
 
         return status
@@ -90,6 +94,7 @@ class AWSProvider:
 
     async def get_costs(self, days: int = 30) -> List[NormalizedCost]:
         from ..billing.aws import AWSBillingProvider
+
         billing = AWSBillingProvider(region=self.region)
         return await billing.get_costs(days)
 
@@ -105,10 +110,12 @@ class AWSProvider:
         collectors = [
             EC2Collector(region=self.region),
             S3Collector(region=self.region),
-            RDSCollector(region=self.region)
+            RDSCollector(region=self.region),
         ]
 
-        results = await asyncio.gather(*[c.collect() for c in collectors], return_exceptions=True)
+        results = await asyncio.gather(
+            *[c.collect() for c in collectors], return_exceptions=True
+        )
 
         all_resources = []
         for res in results:
@@ -122,9 +129,12 @@ class AWSProvider:
     def get_resource_metadata(self, resource_id: str) -> dict:
         return {"id": resource_id, "provider": "aws"}
 
-    async def get_utilization_metrics(self, resources: List[Resource], period_days: int = 7) -> List[Resource]:
+    async def get_utilization_metrics(
+        self, resources: List[Resource], period_days: int = 7
+    ) -> List[Resource]:
         if not HAS_BOTO3:
             return resources
         from ..collectors.aws.metrics import AWSMetricsCollector
+
         collector = AWSMetricsCollector(region=self.region)
         return await collector.collect_metrics(resources, period_days)

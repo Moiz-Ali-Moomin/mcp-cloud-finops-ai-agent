@@ -49,7 +49,12 @@ def run_cli(cmd: str, timeout: int = 15, tag: str = "CLI") -> Dict[str, Any]:
         }
     except subprocess.TimeoutExpired:
         logger.warning(f"[{tag}] Timeout: {cmd}")
-        return {"ok": False, "stdout": "", "stderr": "Command timed out", "returncode": -1}
+        return {
+            "ok": False,
+            "stdout": "",
+            "stderr": "Command timed out",
+            "returncode": -1,
+        }
     except Exception as e:
         logger.error(f"[{tag}] Exception: {e}")
         return {"ok": False, "stdout": "", "stderr": str(e), "returncode": -1}

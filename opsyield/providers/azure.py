@@ -4,6 +4,7 @@ Azure Provider — Production-grade cloud status detection.
 Uses subprocess.run(shell=True) for Windows .cmd compatibility.
 Authentication is determined by CLI exit code of `az account show`.
 """
+
 import os
 import shutil
 from typing import List, Dict, Any
@@ -107,10 +108,12 @@ class AzureProvider:
     async def get_status(self) -> Dict[str, Any]:
         """Async wrapper -- runs blocking subprocess in a thread."""
         import asyncio
+
         return await asyncio.to_thread(self.get_status_sync)
 
     async def get_costs(self, days: int = 30) -> List[NormalizedCost]:
         from ..billing.azure import AzureBillingProvider
+
         billing = AzureBillingProvider(subscription_id=self.subscription_id)
         return await billing.get_costs(days)
 
@@ -125,25 +128,31 @@ class AzureProvider:
         collectors = [
             AzureComputeCollector(subscription_id=self.subscription_id),
             AzureStorageCollector(subscription_id=self.subscription_id),
-            AzureSQLCollector(subscription_id=self.subscription_id)
+            AzureSQLCollector(subscription_id=self.subscription_id),
         ]
 
         import asyncio
-        results = await asyncio.gather(*[c.collect() for c in collectors], return_exceptions=True)
-        
+
+        results = await asyncio.gather(
+            *[c.collect() for c in collectors], return_exceptions=True
+        )
+
         all_resources = []
         for res in results:
             if isinstance(res, list):
                 all_resources.extend(res)
             else:
                 logger.error(f"[Azure] Collector failed: {res}")
-                
+
         return all_resources
 
     def get_resource_metadata(self, resource_id: str) -> dict:
         return {"id": resource_id, "provider": "azure"}
 
-    async def get_utilization_metrics(self, resources: List[Resource], period_days: int = 7) -> List[Resource]:
+    async def get_utilization_metrics(
+        self, resources: List[Resource], period_days: int = 7
+    ) -> List[Resource]:
         from ..collectors.azure.metrics import AzureMetricsCollector
+
         collector = AzureMetricsCollector(subscription_id=self.subscription_id)
         return await collector.collect_metrics(resources, period_days)

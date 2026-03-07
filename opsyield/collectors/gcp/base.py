@@ -3,15 +3,16 @@ import google.auth
 import google.auth.transport.requests
 from typing import Optional
 
+
 class GCPBaseCollector(BaseCollector):
     def __init__(self, project_id: Optional[str] = None, region: str = "global"):
         super().__init__("gcp", region)
         # Initialize project_id first to avoid AttributeError in later calls
         self.project_id = project_id
-        
+
         # Load credentials and discover project if not provided
         self.credentials, discovered_project = google.auth.default()
-        
+
         if not self.project_id:
             self.project_id = discovered_project
 

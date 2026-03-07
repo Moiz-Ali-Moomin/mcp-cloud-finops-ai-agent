@@ -5,6 +5,7 @@ Status: subprocess.run(shell=True) for Windows .cmd compatibility.
 Costs:  google-cloud-bigquery billing export with asyncio.to_thread().
 Authentication is determined by CLI exit code, NOT by project list.
 """
+
 import asyncio
 import os
 import shutil
@@ -24,6 +25,7 @@ logger = get_logger(__name__)
 try:
     from google.cloud import bigquery
     from google.api_core import exceptions as gcp_exceptions
+
     HAS_BIGQUERY = True
 except ImportError:
     HAS_BIGQUERY = False
@@ -136,10 +138,9 @@ class GCPProvider:
 
     async def get_costs(self, days: int = 30) -> List[NormalizedCost]:
         from ..billing.gcp import GCPBillingProvider
+
         billing = GCPBillingProvider(project_id=self.project_id)
         return await billing.get_costs(days)
-
-
 
     # -------------------------------------------------
     # Resource-level costs (best-effort)
@@ -193,7 +194,11 @@ class GCPProvider:
                 if not key:
                     continue
                 raw_cost = row.get("total_cost", 0)
-                cost_float = float(raw_cost) if isinstance(raw_cost, Decimal) else float(raw_cost or 0)
+                cost_float = (
+                    float(raw_cost)
+                    if isinstance(raw_cost, Decimal)
+                    else float(raw_cost or 0)
+                )
                 out[str(key)] = {
                     "cost_30d": round(cost_float, 4),
                     "currency": row.get("currency", "USD"),
@@ -224,24 +229,29 @@ class GCPProvider:
         collectors = [
             GCPComputeCollector(project_id=self.project_id),
             GCPStorageCollector(project_id=self.project_id),
-            GCPSQLCollector(project_id=self.project_id)
+            GCPSQLCollector(project_id=self.project_id),
         ]
 
-        results = await asyncio.gather(*[c.collect() for c in collectors], return_exceptions=True)
-        
+        results = await asyncio.gather(
+            *[c.collect() for c in collectors], return_exceptions=True
+        )
+
         all_resources = []
         for res in results:
             if isinstance(res, list):
                 all_resources.extend(res)
             else:
                 logger.error(f"[GCP] Collector failed: {res}")
-                
+
         return all_resources
 
     def get_resource_metadata(self, resource_id: str) -> dict:
         return {"id": resource_id, "provider": "gcp"}
 
-    async def get_utilization_metrics(self, resources: List[Resource], period_days: int = 7) -> List[Resource]:
+    async def get_utilization_metrics(
+        self, resources: List[Resource], period_days: int = 7
+    ) -> List[Resource]:
         from ..collectors.gcp.metrics import GCPMetricsCollector
+
         collector = GCPMetricsCollector(project_id=self.project_id)
         return await collector.collect_metrics(resources, period_days)

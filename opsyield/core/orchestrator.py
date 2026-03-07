@@ -60,16 +60,27 @@ class Orchestrator:
             cost_by_service: Dict[str, float] = {}
 
             for c in costs:
-                day = c.timestamp.strftime("%Y-%m-%d") if hasattr(c.timestamp, "strftime") else str(c.timestamp)[:10]
+                day = (
+                    c.timestamp.strftime("%Y-%m-%d")
+                    if hasattr(c.timestamp, "strftime")
+                    else str(c.timestamp)[:10]
+                )
                 daily_map[day] = daily_map.get(day, 0.0) + c.cost
                 total_cost += c.cost
-                cost_by_service[c.service] = cost_by_service.get(c.service, 0.0) + c.cost
+                cost_by_service[c.service] = (
+                    cost_by_service.get(c.service, 0.0) + c.cost
+                )
 
-            daily_trends = [{"date": d, "amount": round(v, 4)} for d, v in sorted(daily_map.items())]
+            daily_trends = [
+                {"date": d, "amount": round(v, 4)} for d, v in sorted(daily_map.items())
+            ]
 
             # — Cost drivers (top services) ————————————————————————
             cost_drivers = sorted(
-                [{"service": svc, "cost": round(amt, 4)} for svc, amt in cost_by_service.items()],
+                [
+                    {"service": svc, "cost": round(amt, 4)}
+                    for svc, amt in cost_by_service.items()
+                ],
                 key=lambda x: x["cost"],
                 reverse=True,
             )[:10]
@@ -86,7 +97,14 @@ class Orchestrator:
                     if r.state and r.state.upper() in ("RUNNING", "ACTIVE", "ONLINE"):
                         running_count += 1
                     if r.cost_30d and r.cost_30d > 10:
-                        high_cost.append({"id": r.id, "name": r.name, "type": r.type, "cost_30d": r.cost_30d})
+                        high_cost.append(
+                            {
+                                "id": r.id,
+                                "name": r.name,
+                                "type": r.type,
+                                "cost_30d": r.cost_30d,
+                            }
+                        )
 
             return AnalysisResult(
                 meta={
@@ -115,7 +133,9 @@ class Orchestrator:
                 cost_drivers=cost_drivers,
                 resource_types=resource_types,
                 running_count=running_count,
-                high_cost_resources=sorted(high_cost, key=lambda x: x["cost_30d"], reverse=True)[:20],
+                high_cost_resources=sorted(
+                    high_cost, key=lambda x: x["cost_30d"], reverse=True
+                )[:20],
                 idle_resources=[],
                 waste_findings=[],
             )
@@ -164,9 +184,17 @@ class Orchestrator:
     async def get_dashboard_data(self, days: int = 30) -> Dict[str, Any]:
         """Stub for MCP server compatibility."""
         return {
-            "meta": {"period": f"{days} days", "generated_at": datetime.utcnow().isoformat()},
+            "meta": {
+                "period": f"{days} days",
+                "generated_at": datetime.utcnow().isoformat(),
+            },
             "summary": {"total_cost": 0, "risk_score": 0, "currency": "USD"},
-            "executive_summary": {"total_spend": 0, "risk_score": 0, "anomaly_count": 0, "active_recommendations": 0},
+            "executive_summary": {
+                "total_spend": 0,
+                "risk_score": 0,
+                "anomaly_count": 0,
+                "active_recommendations": 0,
+            },
             "daily_trends": [],
             "cost_drivers": [],
             "anomalies": [],
@@ -176,6 +204,7 @@ class Orchestrator:
 
 
 # — Utility ———————————————————————————————————————————————
+
 
 async def _safe(coro, default):
     """Await a coroutine, return default on any exception."""

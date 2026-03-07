@@ -30,12 +30,15 @@ logger = get_logger(__name__)
 _status_cache: Dict[str, Any] = {}
 _cache_timestamp: float = 0.0
 _CACHE_TTL: float = 60.0
-_cache_lock: asyncio.Lock | None = None  # Lazy-init to avoid binding to wrong event loop
+_cache_lock: asyncio.Lock | None = (
+    None  # Lazy-init to avoid binding to wrong event loop
+)
 
 
 # ─────────────────────────────────────────────────────────────
 # Safe async execution wrapper
 # ─────────────────────────────────────────────────────────────
+
 
 async def safe_status(
     name: str,
@@ -80,6 +83,7 @@ async def safe_status(
 # Environment Snapshot (debug metadata)
 # ─────────────────────────────────────────────────────────────
 
+
 def _get_env_snapshot() -> dict:
     return {
         "USERPROFILE": os.environ.get("USERPROFILE", "(not set)"),
@@ -96,6 +100,7 @@ def _get_env_snapshot() -> dict:
 # ─────────────────────────────────────────────────────────────
 # Provider Factory
 # ─────────────────────────────────────────────────────────────
+
 
 class ProviderFactory:
     """
@@ -131,10 +136,7 @@ class ProviderFactory:
         sig = inspect.signature(provider_class.__init__)
 
         # Filter kwargs safely
-        accepted_kwargs = {
-            k: v for k, v in kwargs.items()
-            if k in sig.parameters
-        }
+        accepted_kwargs = {k: v for k, v in kwargs.items() if k in sig.parameters}
 
         return provider_class(**accepted_kwargs)
 
@@ -220,8 +222,6 @@ class ProviderFactory:
             _status_cache = statuses
             _cache_timestamp = time.monotonic()
 
-            logger.info(
-                f"Cloud status checked in {elapsed:.2f}s: {provider_names}"
-            )
+            logger.info(f"Cloud status checked in {elapsed:.2f}s: {provider_names}")
 
             return statuses

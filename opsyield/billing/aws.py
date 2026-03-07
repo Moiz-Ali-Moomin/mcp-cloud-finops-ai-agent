@@ -7,6 +7,7 @@ from ..core.logging import get_logger
 
 logger = get_logger(__name__)
 
+
 class AWSBillingProvider(BillingProvider):
     def __init__(self, use_cur: bool = False, region: str = "us-east-1"):
         self.use_cur = use_cur
@@ -14,11 +15,14 @@ class AWSBillingProvider(BillingProvider):
 
     async def get_costs(self, days: int = 30) -> List[NormalizedCost]:
         import asyncio
+
         if self.use_cur:
-             # CUR via Athena implementation would go here
-             # Requires: Athena Client, Database, Table, S3 output location
-             logger.warning("AWS CUR implementation pending configuration. Falling back to Cost Explorer.")
-        
+            # CUR via Athena implementation would go here
+            # Requires: Athena Client, Database, Table, S3 output location
+            logger.warning(
+                "AWS CUR implementation pending configuration. Falling back to Cost Explorer."
+            )
+
         return await asyncio.to_thread(self._get_ce_costs, days)
 
     def _get_ce_costs(self, days: int) -> List[NormalizedCost]:
@@ -44,16 +48,18 @@ class AWSBillingProvider(BillingProvider):
                 for group in rbt.get("Groups", []):
                     amount = float(group["Metrics"]["UnblendedCost"]["Amount"])
                     if amount > 0.001:
-                        costs.append(NormalizedCost(
-                            provider="aws",
-                            service=group["Keys"][0],
-                            region=self.region,
-                            resource_id="aggregated",
-                            cost=round(amount, 4),
-                            currency="USD",
-                            timestamp=dt,
-                            tags={},
-                        ))
+                        costs.append(
+                            NormalizedCost(
+                                provider="aws",
+                                service=group["Keys"][0],
+                                region=self.region,
+                                resource_id="aggregated",
+                                cost=round(amount, 4),
+                                currency="USD",
+                                timestamp=dt,
+                                tags={},
+                            )
+                        )
         except Exception as e:
             logger.error(f"AWS Cost Explorer failed: {e}")
         return costs

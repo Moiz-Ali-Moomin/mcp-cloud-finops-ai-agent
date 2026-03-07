@@ -7,15 +7,17 @@ from ..core.models import Resource
 
 logger = get_logger(__name__)
 
+
 class BaseCollector(ABC):
     """
     Abstract base class for all cloud resource collectors.
     Enforces a common interface for discovery, validation, and error handling.
     """
+
     def __init__(self, provider: str, region: str = "global"):
         self.provider = provider
         self.region = region
-    
+
     @abstractmethod
     async def collect(self) -> List[Resource]:
         """
@@ -51,13 +53,11 @@ class BaseCollector(ABC):
         """
         Standardized error logging.
         """
-        logger.error(f"[{self.provider.upper()}] Error during {operation}: {str(error)}")
+        logger.error(
+            f"[{self.provider.upper()}] Error during {operation}: {str(error)}"
+        )
 
-    def _create_resource(self, 
-                         id: str, 
-                         name: str, 
-                         rtype: str, 
-                         **kwargs) -> Resource:
+    def _create_resource(self, id: str, name: str, rtype: str, **kwargs) -> Resource:
         """
         Factory method to create a unified Resource object with defaults.
         """
@@ -68,5 +68,5 @@ class BaseCollector(ABC):
             provider=self.provider,
             region=self.region,
             last_seen=datetime.utcnow(),
-            **kwargs
+            **kwargs,
         )

@@ -2,44 +2,32 @@ name: Python CI
 
 on:
   push:
-    branches: [ "master", "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "master", "main" ]
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v4
-      with:
-        python-version: "3.11"
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: "pip"
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install ruff black mypy pytest
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        pip install -e .
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install pytest ruff black mypy
 
-    - name: Check code formatting with Black
-      run: |
-        black --check .
+      - name: Lint with Ruff
+        run: ruff check .
 
-    - name: Lint with Ruff
-      run: |
-        ruff check .
+      - name: Check formatting
+        run: black --check .
 
-    - name: Type check with mypy
-      run: |
-        mypy opsyield/ --ignore-missing-imports || true
-
-    - name: Run tests with pytest
-      run: |
-        pytest tests/ -v
-
-    - name: Build Docker image
-      run: |
-        docker build -t opsyield-mcp-test .
+      - name: Run tests
+        run: pytest -v

@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  mcp-server:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    image: opsyield-mcp:latest
+    container_name: opsyield-mcp
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/keys/gcp-sa.json
+      - GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION:-us-east-1}
+      - AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID}
+      - AZURE_TENANT_ID=${AZURE_TENANT_ID}
+      - AZURE_CLIENT_ID=${AZURE_CLIENT_ID}
+      - AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - MCP_TRANSPORT=sse
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount GCP credentials if using Google Cloud
+      - ./keys:/keys:ro
+      # Alternatively, mount AWS credentials
+      - ~/.aws:/root/.aws:ro

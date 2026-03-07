@@ -6,11 +6,13 @@ Defines FastAPI application and routes.
 from typing import Optional, List
 from enum import Enum
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
+import uuid
 
 from ..core.orchestrator import Orchestrator
-from ..core.logging import get_logger
+from ..core.logging import get_logger, set_correlation_id, get_correlation_id, TimedOperation
+from ..core.config import validate_environment
 from ..providers.factory import ProviderFactory
 from .adapters.analysis_adapter import adapt_analysis_result
 
@@ -46,6 +48,20 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.on_event("startup")
+async def startup_event():
+    validate_environment()
+
+@app.middleware("http")
+async def request_tracing_middleware(request: Request, call_next):
+    req_id = request.headers.get("X-Correlation-ID") or uuid.uuid4().hex[:12]
+    set_correlation_id(req_id)
+    
+    with TimedOperation(logger, f"HTTP {request.method} {request.url.path}"):
+        response = await call_next(request)
+        response.headers["X-Correlation-ID"] = get_correlation_id() or req_id
+        return response
 
 
 # ─────────────────────────────────────────────

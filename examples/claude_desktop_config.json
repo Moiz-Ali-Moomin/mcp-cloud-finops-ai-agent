@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "opsyield-finops": {
+      "command": "python",
+      "args": [
+        "-m",
+        "opsyield.api.main"
+      ],
+      "env": {
+        "GOOGLE_APPLICATION_CREDENTIALS": "/path/to/your/gcp-sa.json",
+        "GOOGLE_CLOUD_PROJECT": "your-gcp-project-id",
+        "AWS_PROFILE": "default",
+        "AWS_REGION": "us-east-1",
+        "AZURE_SUBSCRIPTION_ID": "your-azure-subscription-id",
+        "AZURE_TENANT_ID": "your-azure-tenant-id",
+        "AZURE_CLIENT_ID": "your-azure-client-id",
+        "AZURE_CLIENT_SECRET": "your-azure-client-secret",
+        "LOG_LEVEL": "DEBUG"
+      }
+    }
+  }
+}

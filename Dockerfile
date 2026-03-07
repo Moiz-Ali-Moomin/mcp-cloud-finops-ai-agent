@@ -24,5 +24,5 @@ EXPOSE 8000
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 
-# Run the API server
-CMD ["uvicorn", "opsyield.api.server:app", "--host", "0.0.0.0", "--port", "8000"]
+# Default command runs the REST API
+CMD ["opsyield-api"]

@@ -1,3 +1,69 @@
+# 🚀 Super Quick Start (Beginner Friendly)
+
+1. **Clone repository**
+```bash
+git clone https://github.com/Moiz-Ali-Moomin/mcp-cloud-finops-ai-agent.git
+cd mcp-cloud-finops-ai-agent
+```
+
+2. **Create Python environment**
+*macOS / Linux*
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+*Windows*
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+```
+
+3. **Install dependencies**
+```bash
+pip install -e .
+```
+
+4. **Configure credentials**
+Set these environment variables (examples):
+*macOS / Linux*
+```bash
+export AWS_PROFILE=default
+export GOOGLE_CLOUD_PROJECT=my-project
+export AZURE_SUBSCRIPTION_ID=my-sub-id
+```
+*Windows*
+```powershell
+$env:AWS_PROFILE="default"
+$env:GOOGLE_CLOUD_PROJECT="my-project"
+$env:AZURE_SUBSCRIPTION_ID="my-sub-id"
+```
+
+5. **Start MCP server**
+```bash
+opsyield-mcp
+```
+The server will start and wait silently for JSON-RPC MCP client connections over stdio.
+
+6. **Connect Claude Desktop**
+Add to your Claude Desktop config:
+```json
+{
+  "mcpServers": {
+    "opsyield-finops": {
+      "command": "opsyield-mcp"
+    }
+  }
+}
+```
+
+7. **Test queries**
+Try asking:
+- "Show my AWS costs for the last 30 days"
+- "List idle resources in my GCP project"
+- "Estimate Azure monthly spend"
+
+---
+
 # ☁️ OpsYield MCP FinOps Server
 <!-- GitHub Topics: finops, mcp, multi-cloud, cloud-cost-optimization, devops, ai-agent -->
 
@@ -115,13 +181,18 @@ To run OpsYield isolated from your local environment, use the provided Dockerfil
    
    *Alternatively, using standard Docker CLI:*
    ```bash
-   docker build -t opsyield-mcp .
-   docker run --env-file .env -i opsyield-mcp
+   docker build -t opsyield .
+   # Run MCP server:
+   docker run --env-file .env -i opsyield opsyield-mcp
+   # Run REST API:
+   docker run --env-file .env -p 8000:8000 opsyield opsyield-api
    ```
 
 ---
 
 ## 🤖 Claude Desktop Configuration
+
+> **Correction Notice**: The command to start the MCP server is `opsyield-mcp`, replacing the old `opsyield-server` command.
 
 To use OpsYield natively in Claude Desktop, add the server to your configuration file (usually found at `%APPDATA%\Claude\claude_desktop_config.json` on Windows):
 
@@ -129,7 +200,7 @@ To use OpsYield natively in Claude Desktop, add the server to your configuration
 {
   "mcpServers": {
     "opsyield-finops": {
-      "command": "opsyield-server",
+      "command": "opsyield-mcp",
       "args": [],
       "env": {
         "GOOGLE_APPLICATION_CREDENTIALS": "C:\\path\\to\\gcp-sa.json",

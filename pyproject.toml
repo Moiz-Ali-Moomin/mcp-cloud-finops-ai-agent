@@ -43,7 +43,8 @@ dev = [
 ]
 
 [project.scripts]
-opsyield-server = "opsyield.api.main:main"
+opsyield-mcp = "opsyield.mcp_entry:main"
+opsyield-api = "opsyield.api.main:main"
 
 [tool.setuptools.packages.find]
 include = ["opsyield*"]

@@ -148,3 +148,12 @@ cython_debug/
 .idea/
 *.swp
 *.swo
+
+# Test and lint output files
+*.out
+ruff*.txt
+
+# Pytest cache
+.pytest_cache/
+.coverage
+htmlcov/

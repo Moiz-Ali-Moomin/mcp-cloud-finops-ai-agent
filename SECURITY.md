@@ -11,15 +11,21 @@ Currently, only the latest major version is actively supported with security upd
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability within OpsYield MCP FinOps Server, please do NOT open a public issue.
+Security is a high priority for the OpsYield project. Since we handle potentially sensitive Cloud and Cost Infrastructure, we adhere strictly to open-source Responsible Disclosure Guidelines.
 
-Instead, please send an e-mail to the repository maintainer directly or report it via GitHub Security Advisories if available on the repository.
+If you discover a security vulnerability within OpsYield MCP FinOps Server, **please do NOT open a public issue.**
 
-**Please include the following in your report:**
-- Type of vulnerability (e.g., XSS, SQLi, Info Disclosure, etc.).
-- The version of the project you are using.
-- Step-by-step instructions on how to reproduce the issue.
-- Any potential impact or damage that could result from the vulnerability.
-- (Optional) Suggested fix or mitigation.
+Instead, please send an e-mail to the repository maintainers directly or report it via **GitHub Security Advisories** by opening a private advisory from the Security tab of this repository.
 
-We will endeavor to respond to your report within 48 hours and keep you informed of our progress towards a fix and announcement.
+### What to Include in Your Report
+Please include the following in your report to help us triage quickly:
+- **Type of vulnerability** (e.g., SSRF, XSS, Info Disclosure, API token leakage, etc.).
+- **Product Version**: The version of the project you are using.
+- **Steps to Reproduce**: Step-by-step instructions on how to replicate the issue.
+- **Impact Analysis**: Any potential impact or damage that could result from the vulnerability if exploited.
+- *(Optional)* A suggested fix or mitigation strategy.
+
+### Responsible Disclosure Guidelines
+We will endeavor to respond to your report within **48 hours** to acknowledge receipt. We ask that you give us a reasonable timeframe (typically 90 days depending on severity) to patch the vulnerability and securely distribute updates to the community before you publish details publicly. 
+
+Once resolved, we will publish a security advisory and acknowledge you (if you desire) for your responsible disclosure!

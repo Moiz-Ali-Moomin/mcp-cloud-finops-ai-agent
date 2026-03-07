@@ -1,92 +1,26 @@
-# 🚀 Super Quick Start (Beginner Friendly)
-
-1. **Clone repository**
-```bash
-git clone https://github.com/Moiz-Ali-Moomin/mcp-cloud-finops-ai-agent.git
-cd mcp-cloud-finops-ai-agent
-```
-
-2. **Create Python environment**
-*macOS / Linux*
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-```
-*Windows*
-```bash
-python -m venv .venv
-.venv\Scripts\activate
-```
-
-3. **Install dependencies**
-```bash
-pip install -e .
-```
-
-4. **Configure credentials**
-Set these environment variables (examples):
-*macOS / Linux*
-```bash
-export AWS_PROFILE=default
-export GOOGLE_CLOUD_PROJECT=my-project
-export AZURE_SUBSCRIPTION_ID=my-sub-id
-```
-*Windows*
-```powershell
-$env:AWS_PROFILE="default"
-$env:GOOGLE_CLOUD_PROJECT="my-project"
-$env:AZURE_SUBSCRIPTION_ID="my-sub-id"
-```
-
-5. **Start MCP server**
-```bash
-opsyield-mcp
-```
-The server will start and wait silently for JSON-RPC MCP client connections over stdio.
-
-6. **Connect Claude Desktop**
-Add to your Claude Desktop config:
-```json
-{
-  "mcpServers": {
-    "opsyield-finops": {
-      "command": "opsyield-mcp"
-    }
-  }
-}
-```
-
-7. **Test queries**
-Try asking:
-- "Show my AWS costs for the last 30 days"
-- "List idle resources in my GCP project"
-- "Estimate Azure monthly spend"
-
----
-
 # ☁️ OpsYield MCP FinOps Server
-<!-- GitHub Topics: finops, mcp, multi-cloud, cloud-cost-optimization, devops, ai-agent -->
+<!-- GitHub Topics: finops, mcp, multi-cloud, cloud-cost-optimization, devops, ai-agent, kubernetes, opencost -->
 
 <p align="center">
   <em>An open source, multi-cloud FinOps Model Context Protocol (MCP) server for discovering, analyzing, and optimizing cloud costs via AI agents.</em>
 </p>
 
-## 📖 Project Overview
+## 📖 What the Project Does
 
 **OpsYield MCP FinOps Server** is an infrastructure intelligence platform that empowers AI agents to interact directly with your cloud environments to perform deep financial operations (FinOps) analysis and cost optimization. 
 
-In a modern multi-cloud landscape, maintaining visibility over sprawl—forgotten environments, over-provisioned compute, and unattached disks—is a major challenge. The OpsYield platform solves this by bridging the gap between raw cloud billing APIs and Large Language Models. 
+In a modern multi-cloud landscape, maintaining visibility over sprawl—forgotten environments, over-provisioned compute, unattached disks, and expansive Kubernetes clusters—is a major challenge. The OpsYield platform solves this by bridging the gap between raw cloud billing APIs and Large Language Models. 
 
-By exposing standard functions through the **Model Context Protocol (MCP)**, AI agents (like Claude Desktop) can instantly query live data from AWS, GCP, and Azure. With OpsYield as the backend, your AI agent transforms into an interactive Platform Engineer capable of analyzing cloud spending trends, generating rightsizing reports, and identifying wasted spend in real time.
+By exposing standard functions through the **Model Context Protocol (MCP)**, AI agents (like Claude Desktop) can instantly query live data from AWS, GCP, Azure, and Kubernetes. With OpsYield as the backend, your AI agent transforms into an interactive Platform Engineer capable of analyzing cloud spending trends, generating rightsizing reports, and identifying wasted spend in real time.
 
 > [!WARNING]
-> **Cloud Spending Alert**: This tool queries billing and cost APIs. Large queries or high-frequency polling may incur API costs or data egress charges depending on your cloud provider's pricing tier (e.g., BigQuery analysis costs for GCP).
+> **Cloud Spending Alert**: This tool queries billing and cost APIs. Large queries or high-frequency polling may incur API costs or data egress charges depending on your cloud provider's pricing tier.
 
 ---
 
-## ✨ Features
+## ✨ Key Features
 
-- **Multi-Cloud Support**: Single plane of glass for AWS, GCP, and Azure cost intelligence.
+- **Multi-Cloud Support**: Single plane of glass for AWS, GCP, Azure, and Kubernetes cost intelligence.
 - **FinOps Cost Analysis**: Consolidate real-time spend analytics and highlight spending anomalies.
 - **Idle Resource Detection**: Deep collector integrations proactively hunt down unattached disks, idle load balancers, and orphaned IPs.
 - **Rightsizing Recommendations**: Get specific down-scaling suggestions based on trailing utilization metrics.
@@ -105,97 +39,79 @@ graph TD
     A[AI Client / LLM] -->|MCP Protocol| B(MCP Server)
     B --> C{API Layer}
     C --> D[Core Orchestrator]
-    D --> E[Collectors and Billing APIs]
-    E --> F[Cost Analysis Engine]
-    F --> G[Optimization Recommendations]
-    G -.->|JSON / Markdown| A
+    D --> E[Provider Implementations]
+    E --> F[Collectors / Cloud APIs]
+    F --> G[Cost Analysis Engine]
+    G --> H[Optimization Recommendations]
+    H -.->|JSON / Markdown| A
 ```
 
 ---
 
-## 🚀 Quick Start (Local Setup)
+## 🚀 Installation Instructions
 
-### 1. Prerequisites
+### Prerequisites
 - **Python 3.10+** (Recommended: 3.13)
 - **pip** (Python package manager)
-- **Cloud Accounts**: Active credentials for at least one provider (AWS, GCP, or Azure).
+- **Cloud Accounts**: Active credentials for at least one provider (AWS, GCP, Azure, or Kubernetes with OpenCost).
 
-### 2. Installation
+### Local Setup
 Clone the repository and install dependencies:
 
 ```bash
 git clone https://github.com/Moiz-Ali-Moomin/mcp-cloud-finops-ai-agent.git
 cd mcp-cloud-finops-ai-agent
+
+# Create virtual environment
+python3 -m venv .venv
+
+# Activate it
+# macOS / Linux:
+source .venv/bin/activate
+# Windows:
+.venv\Scripts\activate
+
+# Install package
 pip install -e .
 ```
 
 ---
 
-## 🔐 Cloud Authentication Setup
+## ⚙️ Environment Configuration
 
-The server requires specific permissions to analyze your clouds.
+The server requires specific permissions to analyze your clouds. Copy the environment example to start:
+
+```bash
+cp .env.example .env
+```
+
+Set these environment variables within `.env` or in your system:
 
 ### 🔵 Google Cloud Platform (GCP)
-1.  **Service Account**: Create a Service Account in the [GCP Console](https://console.cloud.google.com/iam-admin/serviceaccounts).
-2.  **Permissions**: Assign the following roles:
-    *   `BigQuery Data Viewer`
-    *   `BigQuery Job User`
-    *   `Compute Viewer` (for resource discovery)
-3.  **JSON Key**: Generate a JSON key and save it locally. Set the path in `GOOGLE_APPLICATION_CREDENTIALS`.
-4.  **Billing Export**: Ensure **Billing Export to BigQuery** is enabled in your Billing Account settings.
+Set `GOOGLE_APPLICATION_CREDENTIALS` to the path of your Service Account JSON key (requires `BigQuery Data Viewer`, `BigQuery Job User`, and `Compute Viewer`), and `GOOGLE_CLOUD_PROJECT` to your project ID. Ensure Billing Export to BigQuery is enabled.
 
 ### 🟠 Amazon Web Services (AWS)
-1.  **IAM User**: Create an IAM user or role.
-2.  **Permissions**: Attach a policy with:
-    *   `ce:GetCostAndUsage` (Cost Explorer)
-    *   `ec2:DescribeInstances`
-    *   `s3:ListAllMyBuckets`
-3.  **CLI Config**: Run `aws configure` to set up your local credentials profile.
+Set `AWS_PROFILE` if using local `~/.aws/credentials`, or provide `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_REGION`. Ensure your IAM user has `ce:GetCostAndUsage`, `ec2:DescribeInstances`, and `s3:ListAllMyBuckets`.
 
 ### ⚪ Microsoft Azure
-1.  **Service Principal**: Create an App Registration (Service Principal) in Azure AD.
-2.  **Secret**: Create a Client Secret.
-3.  **Permissions**: Assign the `Cost Management Reader` role at the Subscription level.
-4.  **Env Vars**:
-    *   `AZURE_CLIENT_ID`: Your App Registration ID.
-    *   `AZURE_CLIENT_SECRET`: Your Client Secret.
-    *   `AZURE_TENANT_ID`: Your Directory ID.
-    *   `AZURE_SUBSCRIPTION_ID`: Your Subscription ID.
+Set `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`, `AZURE_TENANT_ID`, and `AZURE_SUBSCRIPTION_ID`. Ensure the Service Principal has the `Cost Management Reader` role.
+
+### ☸️ Kubernetes (OpenCost)
+Set `OPENCOST_URL` to the endpoint of your OpenCost installation (default is `http://localhost:9003`).
 
 ---
 
-## 🐳 Docker Usage
+## 🔌 Running the MCP Server
 
-To run OpsYield isolated from your local environment, use the provided Dockerfiles.
+The MCP server exposes standard tools natively to AI agents over standard I/O streams.
 
-1. Create an environment file defining your cloud variables:
-   ```bash
-   cp .env.example .env
-   # Edit .env to add your keys
-   ```
+```bash
+opsyield-mcp
+```
+The server will start and wait silently for JSON-RPC MCP client connections.
 
-2. Build and run using Docker Compose:
-   ```bash
-   docker-compose up --build
-   ```
-   
-   *Alternatively, using standard Docker CLI:*
-   ```bash
-   docker build -t opsyield .
-   # Run MCP server:
-   docker run --env-file .env -i opsyield opsyield-mcp
-   # Run REST API:
-   docker run --env-file .env -p 8000:8000 opsyield opsyield-api
-   ```
-
----
-
-## 🤖 Claude Desktop Configuration
-
-> **Correction Notice**: The command to start the MCP server is `opsyield-mcp`, replacing the old `opsyield-server` command.
-
-To use OpsYield natively in Claude Desktop, add the server to your configuration file (usually found at `%APPDATA%\Claude\claude_desktop_config.json` on Windows):
-
+### Connect Claude Desktop
+Add to your Claude Desktop config (`claude_desktop_config.json`):
 ```json
 {
   "mcpServers": {
@@ -203,10 +119,9 @@ To use OpsYield natively in Claude Desktop, add the server to your configuration
       "command": "opsyield-mcp",
       "args": [],
       "env": {
-        "GOOGLE_APPLICATION_CREDENTIALS": "C:\\path\\to\\gcp-sa.json",
-        "GOOGLE_CLOUD_PROJECT": "your-project-id",
+        "OPENCOST_URL": "http://localhost:9003",
         "AWS_PROFILE": "default",
-        "AZURE_SUBSCRIPTION_ID": "your-sub-id"
+        "GOOGLE_CLOUD_PROJECT": "my-project"
       }
     }
   }
@@ -215,56 +130,78 @@ To use OpsYield natively in Claude Desktop, add the server to your configuration
 
 ---
 
-## 💬 Example Queries
+## 🌐 Running the FastAPI API
 
-Once you have successfully integrated the OpsYield MCP Server with your AI Agent, you can leverage these prompts to explore platform intelligence:
+You can also run the system as a standard REST API backend:
 
-- **Showing AWS Costs**: *"Show me the cost summary for AWS over the last 30 days. Group the cost by service."*
-- **Detecting Idle Resources**: *"Analyze my GCP project and list any idle compute resources or unattached persistent disks."*
-- **Identifying Expensive Services**: *"What are the top 3 most expensive services running in my Azure subscription this month?"*
-- **Suggesting Cost Optimizations**: *"Are there any rightsizing recommendations or optimization strategies to apply to my EC2 environment?"*
-- **Forecasting Spend**: *"Taking into account historical data, what is the forecasted 30-day additional spend across all clouds?"*
+```bash
+uvicorn opsyield.api.main:app --host 0.0.0.0 --port 8000
+```
+This enables the API endpoints, Server-Sent Events (SSE) for MCP, and provides interactive Swagger documentation at `http://localhost:8000/docs`.
 
 ---
 
-## 📂 Project Structure
+## 💬 Example Queries
+
+Try asking your AI agent these natural language questions:
+
+- **Showing AWS Costs**: *"Show me the cost summary for AWS over the last 30 days. Group the cost by service."*
+- **Kubernetes Spend**: *"What are my Kubernetes costs aggregated by namespace using the OpenCost collector?"*
+- **Detecting Idle Resources**: *"Analyze my GCP project and list any idle compute resources or unattached persistent disks."*
+- **Identifying Expensive Services**: *"What are the top 3 most expensive services running in my Azure subscription this month?"*
+- **Suggesting Cost Optimizations**: *"Are there any rightsizing recommendations or optimization strategies to apply to my EC2 environment?"*
+
+---
+
+## ☸️ Kubernetes Cost Integration via OpenCost
+
+The platform treats Kubernetes as a top-level cloud provider. Instead of reinventing complex container cost allocation, OpsYield integrates seamlessly with the **OpenCost REST API**.
+
+The `KubernetesProvider` dynamically polls the OpenCost `/allocation` and `/assets` endpoints to normalize multi-tenant container spending (such as cost-per-namespace) into the unified OpsYield FinOps engine. This allows your AI agent to correlate node-level EC2 costs with workload-level Kubernetes spending in a single conversation. Just ensure `OPENCOST_URL` is set!
+
+---
+
+## 📂 Project Structure Overview
 
 A brief overview of the core architectural domain boundaries:
 
 - **`opsyield/api`**: FastAPI HTTP/SSE configurations, API routes, adapter layers, and the primary MCP Server entry points.
-- **`opsyield/analysis`**: The brain of the application containing logic for anomaly detection, rightsizing heuristics, and waste calculations.
-- **`opsyield/billing`**: Data schemas mapping raw external provider APIs (e.g., Azure Cost Management, AWS CE) into unified internal objects.
-- **`opsyield/collectors`**: Scripts mapping exact read-only queries against cloud compute/storage infrastructures to gather telemetry metadata.
-- **`opsyield/core`**: The foundational models, structured logging configurations, cross-cloud aggregation engine, and operational orchestrators.
-- **`opsyield/providers`**: Abstraction factory defining the standard interfaces `get_cost_summary()`, `get_idle_resources()`, etc. for each cloud.
-- **`opsyield/optimization`**: Strategy implementations that generate discrete, actionable fix commands from the provided analyses.
-- **`opsyield/utils`**: Global helpers for dates, serialization, string sanitization, and network retry logic. 
+- **`opsyield/analysis`**: The heuristic engine containing logic for anomaly detection, rightsizing, and wasting calculations.
+- **`opsyield/collectors`**: Specialized modules directly communicating with specific cloud telemetry or billing APIs (e.g., OpenCost, AWS CE).
+- **`opsyield/providers`**: The dynamic factory and abstraction unified classes acting as a wrapper over the collectors (`CloudProvider`).
+- **`opsyield/core`**: Foundational Pydantic models, structured logging, and internal utilities.
 
 ---
 
-## ❓ Troubleshooting
+## 💻 Development Setup
 
-- **GCP 404 (Table Not Found)**: Verify that your Billing Export dataset name matches the expected pattern in `mcp_server.py`.
-- **AWS Permission Denied**: Ensure "Cost Explorer" is enabled in the AWS Billing console (it's often disabled by default).
-- **Timeout Errors**: If queries take >60s, check your network or try reducing the `days` parameter.
+If you wish to modify the code or add a new provider:
+
+```bash
+# Set up a virtual environment
+python -m venv .venv
+source .venv/bin/activate
+
+# Install with development dependencies
+make install
+```
 
 ---
 
-## 🗺️ Roadmap
+## ✅ Running Tests
 
-- [ ] Add explicit cost anomaly detection and automated baseline alerts.
-- [ ] Implement multi-variate cost forecasting.
-- [ ] Add deep Kubernetes cost analysis via `Kubecost` or `OpenCost` APIs.
-- [ ] Introduce direct Slack alerts for anomaly spikes.
-- [ ] Develop automated weekly PDF/HTML optimization reports.
-- [ ] Integrate Terraform parsing to catch cost escalations *before* deployment.
+We use `pytest` for unit and integration testing:
+
+```bash
+make test
+```
 
 ---
 
 ## 🤝 Contributing
 
 We actively encourage and welcome community contributions! Please review the rules and setup structures before submitting Pull Requests:
-1. Review the [`CONTRIBUTING.md`](CONTRIBUTING.md) guide for local environment setup (`make install`, `make test`, local virtualenvs).
+1. Review the [`CONTRIBUTING.md`](CONTRIBUTING.md) guide for local environment setup, architecture bounds, and code style.
 2. Review our [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md).
 3. Ensure you've run both `make lint` and `make format` across all files.
 

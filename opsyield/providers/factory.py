@@ -20,6 +20,7 @@ from .base import CloudProvider
 from .gcp import GCPProvider
 from .aws import AWSProvider
 from .azure import AzureProvider
+from .kubernetes import KubernetesProvider
 
 logger = get_logger(__name__)
 
@@ -115,6 +116,7 @@ class ProviderFactory:
         "gcp": GCPProvider,
         "aws": AWSProvider,
         "azure": AzureProvider,
+        "kubernetes": KubernetesProvider,
     }
 
     @classmethod

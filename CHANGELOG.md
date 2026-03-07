@@ -8,8 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Kubernetes Cost Integration**: The platform natively supports Kubernetes as a provider, retrieving cluster and namespace costs via the OpenCost REST API.
 - Standard Open Source community files (`LICENSE`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `CHANGELOG.md`).
-- Comprehensive documentation in `docs/` (`architecture.md`, `providers.md`, `development.md`, `finops-engine.md`).
+- Comprehensive documentation in `docs/` (`architecture.md`, `providers.md`, `development.md`, `finops-engine.md`, `kubernetes-costs.md`, `collectors.md`).
 - Makefile for developer experience improvements (`install`, `test`, `lint`, `format`, `docker-build`, etc.).
 - Examples folder containing `claude_desktop_config.json`, `docker-compose.yml`, and `sample_queries.md`.
 - Basic GitHub Actions CI workflow for linting, testing, and building (`python-ci.yml`).
@@ -17,7 +18,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Python code quality tooling (`ruff`, `black`, `mypy`).
 - Structured logging with trace tracking for MCP requests.
 
-## [1.3.0] - Initial Core Features
+### Changed
+- Extensive documentation overhaul for usability and onboarding.
+
+### Fixed
+- Stabilized orchestrator loading via dynamic ProviderFactory.
+
+### Removed
+- Deprecated redundant parsing blocks in legacy SDK clients.
+
+---
+
+## [1.3.0] - 2026-03-01
+
 ### Added
 - Production-grade multi-cloud FinOps MCP backend supporting AWS, GCP, and Azure.
 - Integration endpoints for Claude Desktop.

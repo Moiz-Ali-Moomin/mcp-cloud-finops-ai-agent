@@ -4,6 +4,9 @@ Tests for FinOps Analysis Engine.
 
 import pytest
 
+from opsyield.core.models import Resource
+from opsyield.analysis.waste_detector import WasteDetector
+
 pytestmark = pytest.mark.skip("Outdated test functions")
 
 
@@ -33,7 +36,8 @@ class TestAnalysisEngine:
         )
 
         # Test detection logic
-        findings = analyze_waste([idle_resource, active_resource])
+        detector = WasteDetector()
+        findings = detector.detect([idle_resource, active_resource])
 
         # Should only flag the idle resource
         assert len(findings) == 1
@@ -51,6 +55,8 @@ class TestAnalysisEngine:
             cost_30d=25.0,
         )
 
-        findings = analyze_waste([unattached_disk])
+        detector = WasteDetector()
+        findings = detector.detect([unattached_disk])
+
         assert len(findings) == 1
         assert "unattached" in findings[0]["reason"].lower()

@@ -3,11 +3,21 @@ from typing import List
 from google.cloud import storage
 from .base import GCPBaseCollector
 from ...core.models import Resource
+from ...core.logging import get_logger
+
+logger = get_logger(__name__)
 
 
 class GCPStorageCollector(GCPBaseCollector):
     async def collect(self) -> List[Resource]:
-        return await asyncio.to_thread(self._collect_sync)
+        try:
+            return await asyncio.wait_for(
+                asyncio.to_thread(self._collect_sync),
+                timeout=25.0
+            )
+        except asyncio.TimeoutError:
+            logger.warning("[GCP Storage] Timed out after 25s, returning empty list")
+            return []
 
     def _collect_sync(self) -> List[Resource]:
         resources = []

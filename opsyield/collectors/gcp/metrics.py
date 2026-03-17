@@ -3,7 +3,8 @@ import asyncio
 import time
 from ...core.models import Resource
 from ...core.logging import get_logger
-from gcp.base import GCPBaseCollector
+import time
+from .base import GCPBaseCollector
 
 logger = get_logger(__name__)
 

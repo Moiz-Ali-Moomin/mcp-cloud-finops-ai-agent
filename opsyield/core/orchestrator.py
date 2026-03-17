@@ -48,9 +48,15 @@ class Orchestrator:
                 subscription_id=subscription_id,
             )
 
-            # — Fetch data concurrently ——————————————————————————————
-            costs_task = asyncio.create_task(_safe(provider.get_costs(days), []))
-            infra_task = asyncio.create_task(_safe(provider.get_infrastructure(), []))
+            # — Fetch data concurrently with hard timeouts ————————————
+            # Timeouts prevent MCP cancellation from leaving orphaned threads.
+            # Each sub-task has its own budget; if one times out the other still returns.
+            costs_task = asyncio.create_task(
+                _safe_timed(provider.get_costs(days), [], timeout=28)
+            )
+            infra_task = asyncio.create_task(
+                _safe_timed(provider.get_infrastructure(), [], timeout=28)
+            )
 
             costs, resources = await asyncio.gather(costs_task, infra_task)
 
@@ -144,6 +150,7 @@ class Orchestrator:
         self,
         providers: List[str],
         days: int = 30,
+        project_id: Optional[str] = None,
         subscription_id: Optional[str] = None,
     ) -> AnalysisResult:
         """
@@ -154,7 +161,7 @@ class Orchestrator:
 
         with TimedOperation(logger, "aggregate_analysis", provider=",".join(providers)):
             coros = [
-                self.analyze(p, days=days, subscription_id=subscription_id)
+                self.analyze(p, days=days, project_id=project_id, subscription_id=subscription_id)
                 for p in providers
             ]
             raw_results = await gather_with_limit(coros, limit=5)
@@ -210,6 +217,18 @@ async def _safe(coro, default):
     """Await a coroutine, return default on any exception."""
     try:
         return await coro
+    except Exception as e:
+        logger.warning(f"Provider call failed (returning default): {e}")
+        return default
+
+
+async def _safe_timed(coro, default, timeout: float = 28):
+    """Await a coroutine with a hard timeout, return default on timeout or error."""
+    try:
+        return await asyncio.wait_for(coro, timeout=timeout)
+    except asyncio.TimeoutError:
+        logger.warning(f"Provider call timed out after {timeout}s (returning default)")
+        return default
     except Exception as e:
         logger.warning(f"Provider call failed (returning default): {e}")
         return default

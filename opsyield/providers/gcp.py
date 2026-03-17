@@ -5,12 +5,13 @@ Status: subprocess.run(shell=True) for Windows .cmd compatibility.
 Costs:  google-cloud-bigquery billing export with asyncio.to_thread().
 Authentication is determined by CLI exit code, NOT by project list.
 """
-
 import asyncio
+import os
 import shutil
+import time
 from datetime import datetime, timedelta
 from decimal import Decimal
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 from ..core.models import NormalizedCost, Resource
 from ..core.logging import get_logger
@@ -23,7 +24,6 @@ logger = get_logger(__name__)
 try:
     from google.cloud import bigquery
     from google.api_core import exceptions as gcp_exceptions
-
     HAS_BIGQUERY = True
 except ImportError:
     HAS_BIGQUERY = False
@@ -47,8 +47,24 @@ class GCPProvider:
     _BQ_RESOURCE_TABLE_PATTERN = "gcp_billing_export_resource_v1_*"
 
     def __init__(self, project_id: str = None, credentials_path: str = None):
-        self.project_id = project_id
+        from ..core.context import get_project
+        self.project_id = (
+            project_id
+            or get_project()
+            or os.environ.get("GOOGLE_CLOUD_PROJECT")
+        )
         self.credentials_path = credentials_path
+
+    def _resolve_project_id(self) -> str:
+        from ..core.context import get_project
+        resolved = (
+            self.project_id
+            or get_project()
+            or os.environ.get("GOOGLE_CLOUD_PROJECT")
+        )
+        if not resolved:
+            raise ValueError("No GCP project_id set")
+        return resolved
 
     # -------------------------------------------------
     # Status Detection (unchanged from previous version)
@@ -136,9 +152,10 @@ class GCPProvider:
 
     async def get_costs(self, days: int = 30) -> List[NormalizedCost]:
         from ..billing.gcp import GCPBillingProvider
-
         billing = GCPBillingProvider(project_id=self.project_id)
         return await billing.get_costs(days)
+
+
 
     # -------------------------------------------------
     # Resource-level costs (best-effort)
@@ -192,11 +209,7 @@ class GCPProvider:
                 if not key:
                     continue
                 raw_cost = row.get("total_cost", 0)
-                cost_float = (
-                    float(raw_cost)
-                    if isinstance(raw_cost, Decimal)
-                    else float(raw_cost or 0)
-                )
+                cost_float = float(raw_cost) if isinstance(raw_cost, Decimal) else float(raw_cost or 0)
                 out[str(key)] = {
                     "cost_30d": round(cost_float, 4),
                     "currency": row.get("currency", "USD"),
@@ -219,6 +232,7 @@ class GCPProvider:
     async def get_infrastructure(self) -> List[Resource]:
         """
         Discovers infrastructure using modular collectors.
+        Hard 45s wall-clock cap — individual collectors each have 25s.
         """
         from ..collectors.gcp.compute import GCPComputeCollector
         from ..collectors.gcp.storage import GCPStorageCollector
@@ -230,9 +244,14 @@ class GCPProvider:
             GCPSQLCollector(project_id=self.project_id),
         ]
 
-        results = await asyncio.gather(
-            *[c.collect() for c in collectors], return_exceptions=True
-        )
+        try:
+            results = await asyncio.wait_for(
+                asyncio.gather(*[c.collect() for c in collectors], return_exceptions=True),
+                timeout=45.0,
+            )
+        except asyncio.TimeoutError:
+            logger.warning("[GCP] get_infrastructure timed out after 45s, returning empty list")
+            return []
 
         all_resources = []
         for res in results:
@@ -240,16 +259,12 @@ class GCPProvider:
                 all_resources.extend(res)
             else:
                 logger.error(f"[GCP] Collector failed: {res}")
-
         return all_resources
 
     def get_resource_metadata(self, resource_id: str) -> dict:
         return {"id": resource_id, "provider": "gcp"}
 
-    async def get_utilization_metrics(
-        self, resources: List[Resource], period_days: int = 7
-    ) -> List[Resource]:
+    async def get_utilization_metrics(self, resources: List[Resource], period_days: int = 7) -> List[Resource]:
         from ..collectors.gcp.metrics import GCPMetricsCollector
-
         collector = GCPMetricsCollector(project_id=self.project_id)
         return await collector.collect_metrics(resources, period_days)
